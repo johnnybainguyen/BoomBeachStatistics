@@ -1,0 +1,102 @@
+<html>
+	<head>
+		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="http://code.highcharts.com/highcharts.js"></script>
+		<script src="http://rawgithub.com/phpepe/highcharts-regression/master/highcharts-regression.js"></script>
+		<script>
+			var xmlhttp = new XMLHttpRequest()
+			var date = new Date();
+			var monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+			var month = date.getMonth() + 1;
+			var year = date.getFullYear();
+			var url = "/XPVPAPI/year/" + year + "/month/" + month;
+			var dataPoints = [];	
+			var findingAverages = [];
+			var dataAnalysis = "";
+			xmlhttp.onreadystatechange = function() {
+				if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+					var myArr = JSON.parse(xmlhttp.responseText);
+					myFunction(myArr);
+				}
+			};
+
+			xmlhttp.open("GET", url, true);
+			xmlhttp.send();
+
+			function myFunction(arr) {
+				for(var i = 0; i < arr.length; ++i) {
+					dataPoints.push([arr[i].VictoryPoint, arr[i].XPLevel]); 	
+				}
+			$(function() {
+				$('#container').highcharts( {
+					chart: {
+						type: 'scatter',
+						zoomType: 'xy'
+					},
+					title: {
+						text: monthName[date.getMonth()] + " " + year + ' Boom Beach XP versus XP'
+					},
+					yAxis: {
+						title: {
+							enabled: true,
+							text:"Experience Level"
+						},
+						startOnTick:true,
+						endOnTick:true,
+						showLastLabel: true,
+						tickInterval: 10
+					},
+					xAxis: {
+						title: {
+							text: 'Victory Points'
+						},
+						tickInterval: 50
+					},
+					plotOptions: {
+						scatter: {
+							marker: {
+								radius: 5, 
+								states: {
+									hover: {
+										enabled:true,
+										lineColor: 'rgb(100,100,100)'
+									}
+								}
+							},
+							states: {
+								hover: {
+									marker: {
+										enabled: false
+									}
+								}
+							}
+						}
+					},
+					series: [{
+						color: 'rgba(119,152,191,.5)',
+						data: dataPoints 
+					}]
+				});
+			});
+			console.log(dataPoints);
+
+			}
+		</script>
+
+
+		<script>
+		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		  ga('create', 'UA-73844310-1', 'auto');
+		  ga('send', 'pageview');
+
+		</script>
+
+	</head>
+	<body>
+		<div id="container" style="width:100%;height:400px"></div>
+	</body>
+</html>
