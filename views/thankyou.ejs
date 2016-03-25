@@ -1,0 +1,32 @@
+<html>
+	<head>
+		<title>Boom Beach Statistics: Experience Level | Victory Points | XP | VP</title>
+		<meta name="description" content="A site that analyzes XP VP game trends for mobile app game Boom Beach">
+		<meta name="keywords" content="Boom Beach, XP, Experience Level, Victory Point, VP, statistics, analysis">
+		<link rel='stylesheet' type='type/css' href='css/submission.css'>
+		<link rel='stylesheet' type='type/css' href='css/nav.css'>
+		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="/js/google-analytics.js"></script>
+	</head>
+	<body>
+<% include nav.ejs %>
+		<div id="thank-you">
+			Thank you for your submission.  You will be redirected to charts page with the data you inputted in <span id="timer">3</span> seconds.
+		</div>
+<% include footer.ejs %>
+		<script>
+			var count = 3;
+			var counter = setInterval(timer, 1000);
+			function timer() {
+				count -= 1;
+				document.getElementById("timer").innerHTML = count;
+				if(count <= 0) {
+					clearInterval(counter);
+					location.href = '/charts';
+					return;
+				}
+			}
+		</script>
+
+	</body>
+</html>

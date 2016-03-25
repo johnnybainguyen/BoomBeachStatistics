@@ -1,0 +1,22 @@
+<html>
+	<head>
+		<title>Boom Beach Statistics: VP Calculator</title>
+		<meta name="description" content="A site that analyzes XP VP game trends for mobile app game Boom Beach">
+		<meta name="keywords" content="Boom Beach, XP, Experience Level, Victory Point, VP, statistics, analysis">
+		<link rel='stylesheet' type='type/css' href='css/submission.css'>
+		<link rel='stylesheet' type='type/css' href='css/nav.css'>
+		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="/js/google-analytics.js"></script>
+	</head>
+	<body>
+<% include nav.ejs %>
+		<div class='submission-form'><b><span id="vp-calculator-header">VP Calculator</span></b><br><br>
+		<form action='/vp-calculator' method='post'>
+			Experience Level:<br>
+			<input type='text' name='XPLevel'>
+			<input type='submit' name='Submit'><br>
+			Please help to keep this calculator going by <a href="/">submitting more XPVP</a> data.
+		</form></div>
+<% include footer.ejs %>
+	</body>
+</html>

@@ -4,15 +4,24 @@ var monthName = ["January", "February", "March", "April", "May", "June", "July",
 var statsKey = {"xp": "_id", "vp": "vp", "min":"min", "max":"max", "average": "average", "median":"median", "ratio":"ratio"};
 var month = getParam("month") ? getParam("month") : date.getMonth() + 1;
 var year = getParam("year") ? getParam("year") : date.getFullYear();
+var levelFrom = getParam("levelfrom");
+var levelTo = getParam("levelto");
 var xAxis = getParam("x") ? getParam("x") : "xp";
 var yAxis = getParam("y") ? getParam("y") : "vp";
 var graphType = getParam("graphtype") ? getParam("graphtype") : "exponential";
 var url = "/XPVPAPI/year/" + year + "/month/" + month;
 var urlStats = "/XPVPStatisticsAPI/year/" + year + "/month/" + month;
 var dataPoints = [];	
-var findingAverages = [];
-var dataAnalysis = "";
-var test = [];
+
+$(document).ready(function() {
+	$('#x').val(xAxis);
+	$('#y').val(yAxis);
+	$('#graph-type').val(graphType);
+	$('#month').val(month);
+	$('#year').val(year);
+	$('select').select2();
+});
+
 function drawTable(stats) {
 	for(var i = 0; i < stats.length; ++i) {
 		drawRow(stats[i]);
@@ -38,6 +47,7 @@ function drawRow(rowData) {
 	row.append($("<td>" + rowData.min + "</td>"));
 	row.append($("<td>" + rowData.max + "</td>"));
 	row.append($("<td>" + rowData.average.toPrecision(4) + "</td>"));
+	row.append($("<td>" + rowData.stdDev + "</td>"));
 	if(rowData.median) {
 		row.append($("<td>" + rowData.median + "</td>"));
 	} else {
@@ -56,11 +66,16 @@ function drawRow(rowData) {
 $.get(urlStats, function(stats, status) {
 	myFunction(JSON.parse(stats));
 	drawTable(JSON.parse(stats));
-	test = stats; 
 });
 
 function myFunction(stats) {
+	if(levelFrom && levelTo) {
+		stats = stats.filter(function(item) {
+			return item[statsKey['xp']] >= levelFrom && item[statsKey['xp']] <= levelTo;
+		});
+	}	
 	for(var i = 0; i < stats.length; ++i) {
+		// Parsing the VPList on the browser end
 		if(xAxis == "vp" || yAxis == "vp") {
 			for(var j = 0; j < stats[i].vpList.length; ++j) {
 				if(xAxis == "vp" && yAxis == "vp") {
@@ -83,12 +98,12 @@ function myFunction(stats) {
 				zoomType: 'xy'
 			},
 			title: {
-				text: monthName[month-1] + " " + year + ' Boom Beach XP versus XP'
+				text: monthName[month-1] + " " + year + ' Boom Beach ' + xAxis + ' versus ' + yAxis
 			},
 			xAxis: {
 				title: {
 					enabled: true,
-					text:"Experience Level"
+					text:xAxis
 				},
 				startOnTick:true,
 				endOnTick:true,
@@ -96,7 +111,7 @@ function myFunction(stats) {
 			},
 			yAxis: {
 				title: {
-					text: 'Victory Points'
+					text: yAxis
 				},
 			},
 			plotOptions: {

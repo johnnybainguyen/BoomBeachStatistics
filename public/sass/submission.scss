@@ -1,0 +1,89 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	line-height: 20px;
+}
+
+input[type=text]{
+	-webkit-appearance: none; -moz-appearance: none;
+	display: block;
+	margin: 0;
+	width: 100%; height: 40px;
+	line-height: 40px; font-size: 17px;
+	border: 1px solid #bbb;
+	padding-left:10px;
+}
+
+textarea {
+	padding:5px;
+	width: 100%;
+	height:159px;
+}
+
+input[type=submit] {
+	-webkit-appearance: none; -moz-appearance: none;
+	display: block;
+	margin: 1.5em 0;
+	font-size: 1em; line-height: 2.5em;
+	color: #333;
+	font-weight: bold;
+	height: 2.5em; width: 100%;
+	background: #fdfdfd; background: -moz-linear-gradient(top, #fdfdfd 0%, #bebebe 100%); background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fdfdfd), color-stop(100%,#bebebe)); background: -webkit-linear-gradient(top, #fdfdfd 0%,#bebebe 100%); background: -o-linear-gradient(top, #fdfdfd 0%,#bebebe 100%); background: -ms-linear-gradient(top, #fdfdfd 0%,#bebebe 100%); background: linear-gradient(to bottom, #fdfdfd 0%,#bebebe 100%);
+	border: 1px solid #bbb;
+	-webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;
+}
+
+#submission-info {
+	margin: 0px auto;
+	text-align:center;
+}
+
+.xpvp-note, .paypal-donation {
+	text-align:center;
+}
+
+.submission-form {
+	margin: 0px auto;
+	width: 300px;
+	border: 2px solid;
+	border-color: #ededed;
+	border-radius:25px;
+	padding: 20px;
+}
+
+.submission-outer {
+	text-align: center;
+}
+
+.submission-wrapper {
+	display:inline-block;
+	text-align:left;
+}
+
+#single-submission {
+	float:left;
+}
+
+#group-submission {
+	float:left;
+	margin-left: 15px;
+}
+
+
+.vp-calculator-result {
+	line-height:25px;
+	text-align:center;
+	margin: 0px auto;
+	width: 400px;
+	border: 2px solid;
+	border-color: #ededed;
+	border-radius:25px;
+	padding: 20px;
+}
+
+#vp-calculator-header {
+	font-size:25px;
+}
+
+#thank-you {
+	text-align:center;
+}

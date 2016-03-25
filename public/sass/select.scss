@@ -1,0 +1,26 @@
+#search-submit {
+	width: 100%;
+	text-align:center;
+}
+
+#search-submit select {
+	padding-left: 20px;
+	margin-left: 20px;
+}
+
+#search-submit .search-label {
+	margin-left: 10px;
+}
+
+#search-submit input[type=submit]{
+	border: 1px solid #777777;
+	background: #6e9e2d;
+	color: white;
+	font: bold 12px 'Trebuchet MS';
+	padding: 4px;
+	cursor: pointer;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	margin-left:20px;
+}
+
