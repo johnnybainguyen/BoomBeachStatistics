@@ -123,7 +123,6 @@
         });
 
         var string = 'y = ' + Math.round(A*100) / 100 + 'e^(' + Math.round(B*100) / 100 + 'x)';
-
         return {equation: [A, B], points: results, string: string};
     } 
     

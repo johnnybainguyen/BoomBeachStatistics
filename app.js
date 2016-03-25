@@ -2,9 +2,10 @@ var fs = require("fs");
 var express = require('express');
 var bodyParser = require("body-parser");
 var mongoClient = require("mongodb").MongoClient;
+var MINLEVEL = 20;
 var MAXLEVEL = 64;
 var MAXVP = 3000;
-var LOWLEVELRATIO = 4.1;
+var LOWLEVELRATIO = 5;
 var vpCalculatorMonth = new Date("February 1, 2016");
 var vpCalculatorMonthTo = new Date("April 1, 2016");
 var app = express();
@@ -26,6 +27,10 @@ app.get("/", function(req, res) {
 
 app.get("/vp-calculator", function(req, res) {
 	res.render(__dirname + "/views/vp-calculator.ejs", {});
+});
+
+app.get("/vp-calculator2", function(req, res) {
+	res.render(__dirname + "/views/vp-calculator2.ejs", {});
 });
 
 app.get("/charts", function(req, res) {
@@ -99,81 +104,79 @@ app.post('/vp-calculator', function(req, res) {
 	var xp = parseInt(req.body.XPLevel);
 
 	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
-			db.collection("XPVictory").find(
+		if(xp >= MINLEVEL && xp <= MAXLEVEL) {
+			db.collection("XPVictory").aggregate(
+			[{
+				$match:
 				{
-					"Date":
-					{
-						$gte:vpCalculatorMonth,
+					"Date":{
+						$gte: vpCalculatorMonth, 
 						$lt: vpCalculatorMonthTo
 					},
-					"XPLevel": xp
-				}).count(function(err, count) {
-					if(count > 0  && xp > 0 && xp <= MAXLEVEL) {
-						db.collection("XPVictory").aggregate(
-						[{
-							$match:
-							{
-								"Date":{
-									$gte: vpCalculatorMonth, 
-									$lt: vpCalculatorMonthTo
-								},
-								"XPLevel": xp
-							}
-						}, 
-						{
-							$group:
-							{
-								_id:"$XPLevel", 
-								min:{$min:"$VictoryPoint"}, 
-								max:{$max:"$VictoryPoint"}, 
-								average: {$avg:"$VictoryPoint"}, 
-								vpList:{$push: "$VictoryPoint"}
-							}
-						}, 
-						{
-							$project: 
-							{
-								_id:1, 
-								min:1, 
-								max:1, 
-								average:1, 
-								ratio:{$divide:["$average", "$_id"]}, 
-								vpList:1
-							}
-						}, 
-						{
-							$sort:{_id:1}
-						}]).toArray(function(err, statistics) {
-							var data = statistics[0];
-							var dev = stdDev(data["average"], data["vpList"]);
-							var renderedData = {
-									"XPLevel": xp,
-									"average" : parseInt(data["average"]),
-									"minMax" : data["min"] + " - " + data["max"],
-									"vpRange" : parseInt(data["average"] - dev) + " - " + parseInt(data["average"] + dev)
-							};
-							res.render(__dirname + "/views/vp-calculator-results.ejs", renderedData);
-						});
-					} else if(count == 0 && xp > 0 && xp <= MAXLEVEL) {
-						var renderedData = {
-								"XPLevel": xp,
-								"average" : parseInt(xp * LOWLEVELRATIO),
-								"vpRange" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp),
-								"minMax" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp)
-						};
+				}
+			}, 
+			{
+				$group:
+				{
+					_id:"$XPLevel", 
+					min:{$min:"$VictoryPoint"}, 
+					max:{$max:"$VictoryPoint"}, 
+					average: {$avg:"$VictoryPoint"}, 
+					vpList:{$push: "$VictoryPoint"}
+				}
+			}, 
+			{
+				$project: 
+				{
+					_id:1, 
+					min:1, 
+					max:1, 
+					average:1, 
+					ratio:{$divide:["$average", "$_id"]}, 
+					vpList:1
+				}
+			}, 
+			{
+				$sort:{_id:1}
+			}]).toArray(function(err, statistics) {
+				var expEq = exponentialEquation(statistics);
+				var targetVP = parseInt(expEq["equation"][0] * Math.exp(expEq["equation"][1] * xp)); 
+				var data = [];
+				for(var i = 0; i < statistics.length; ++i) {
+					if(parseInt(statistics[i]["_id"]) == xp) {
+						data = statistics[i];
+					}
+				}
 
-						res.render(__dirname + "/views/vp-calculator-results.ejs", renderedData);
-							
-					} else {
-						res.render(__dirname + "/views/vp-calculator-reject.ejs", {});
-					}	
+				var dev = stdDev(data["average"], data["vpList"]);
+				var renderedData = {
+						"XPLevel": xp,
+						"average" : targetVP,
+						"targetVP" : targetVP,
+						"minMax" : data["min"] + " - " + data["max"],
+						"vpRange" : parseInt(targetVP - dev) + " - " + parseInt(targetVP + dev)
+				};
+				res.render(__dirname + "/views/vp-calculator-results.ejs", renderedData);
+			});
+		} else if(xp > 0 && xp < MINLEVEL) {
+			var renderedData = {
+					"XPLevel": xp,
+					"average" : parseInt(xp * LOWLEVELRATIO),
+					"targetVP" : parseInt(xp * LOWLEVELRATIO),
+					"vpRange" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp),
+					"minMax" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp)
+			};
 
-				});
+			res.render(__dirname + "/views/vp-calculator-results.ejs", renderedData);
 				
+		} else {
+			res.render(__dirname + "/views/vp-calculator-reject.ejs", {});
+		}	
 
 	});	
 
 });
+
 
 app.get("/XPVPAPI/year/:year/month/:month", function(req, res) {
 	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
@@ -256,5 +259,41 @@ function stdDev(mean, vpList) {
 	var meanSquaredDiff = squaredDiffListSum / vpList.length;
 	return parseInt(Math.sqrt(meanSquaredDiff));
 }
+
+function exponentialEquation(dbData) {
+	// Format Data
+	var data = [];
+	for(var i = 0; i < dbData.length; ++i) {
+		for(var j = 0; j < dbData[i].vpList.length; ++j) {
+			data.push([dbData[i]["_id"], dbData[i].vpList[j]]);
+		}
+	}
+	
+	//Calculate Exponential Equation
+	var sum = [0, 0, 0, 0, 0, 0], n = 0;
+
+	for (len = data.length; n < len; n++) {
+	  if (data[n]['x'] != null) {
+		data[n][0] = data[n]['x'];
+		data[n][1] = data[n]['y'];
+	  }
+	  if (data[n][1] != null) {
+		sum[0] += data[n][0]; // X
+		sum[1] += data[n][1]; // Y
+		sum[2] += data[n][0] * data[n][0] * data[n][1]; // XXY
+		sum[3] += data[n][1] * Math.log(data[n][1]); // Y Log Y 
+		sum[4] += data[n][0] * data[n][1] * Math.log(data[n][1]); //YY Log Y
+		sum[5] += data[n][0] * data[n][1]; //XY
+	  }
+	}
+
+	var denominator = (sum[1] * sum[2] - sum[5] * sum[5]);
+	var A = Math.pow(Math.E, (sum[2] * sum[3] - sum[5] * sum[4]) / denominator);
+	var B = (sum[1] * sum[4] - sum[5] * sum[3]) / denominator;
+
+	return {equation: [A, B]};
+} 
+    
+
 
 app.listen(8080);
