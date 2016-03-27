@@ -45,66 +45,52 @@ app.get("/monthtomonth", function(req, res) {
 app.post('/XPVPSubmit', function(req, res) {
 	var xp = parseInt(req.body.XPLevel);
 	var vp = parseInt(req.body.victoryPoint);
-	var XPVPList = req.body.XPVP;
+	var xpvp = [xp + "/" + vp];
 	var ip = req.headers['x-forwarded-for'] ||
 		req.connection.remoteAddress ||
 		req.socket.remoteAddress ||
 		req.connection.socket.remoteAddress;
-	if(xp <= MAXLEVEL && vp <= MAXVP) {
-		mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
-			if(err) { return console.dir(err); } 
-			db.collection("XPVictory").insert(
-				{
-					"ip" : ip,
-					"username": "", 
-					"XPLevel" : xp, 
-					"VictoryPoint" : vp, 
-					"Date" : new Date()
-				}
-			);
-		});
-	}
+
+	insertXPVPCollection(ip, xpvp);
 
 	res.render(__dirname + "/views/thankyou.ejs", {});
 });
 
 app.post('/XPVPListSubmit', function(req, res) {
-	var list = req.body.XPVPList.split('\n');
-	var insertCollect = [];
+	var xpvpList = req.body.XPVPList.split('\n');
 	var ip = req.headers['x-forwarded-for'] ||
-	req.connection.remoteAddress ||
-	req.socket.remoteAddress ||
-	req.connection.socket.remoteAddress;
+		req.connection.remoteAddress ||
+		req.socket.remoteAddress ||
+		req.connection.socket.remoteAddress;
 
-	for(var i = 0; i < list.length; ++i) {
-		var tuple = list[i].split("/");
-		var xp = parseInt(tuple[0]);
-		var vp = parseInt(tuple[1]);
-		if(xp <= MAXLEVEL && xp > 0 && vp <= MAXVP && vp > 0) {
-			insertCollect.push({
-				"ip":ip,
-				"username":"",
-				"XPLevel":xp,
-				"VictoryPoint": vp,
-				"Date" : new Date()
-			});
-		}
-	}
+	insertXPVPCollection(ip, xpvpList);					
 
-	if(insertCollect) {
-		mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
-			db.collection("XPVictory").insert(insertCollect);
-		});
-	}
-						
 	res.render(__dirname + "/views/thankyou.ejs", {});
 });
 
 app.post('/vp-calculator', function(req, res) {
 	var xp = parseInt(req.body.XPLevel);
+	var vp = parseInt(req.body.victoryPoint);
+	var ip = req.headers['x-forwarded-for'] ||
+		req.connection.remoteAddress ||
+		req.socket.remoteAddress ||
+		req.connection.socket.remoteAddress;
+	if(xp && vp) {
+		insertXPVPCollection(ip, [xp + "/" + vp]);
+	}
 
 	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
-		if(xp >= MINLEVEL && xp <= MAXLEVEL) {
+		if(xp > 0 && xp < MINLEVEL && !vp) {
+			var renderedData = {
+					"XPLevel": xp,
+					"targetVP" : parseInt(xp * LOWLEVELRATIO),
+					"vpRange" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp),
+					"minMax" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp)
+			};
+
+			res.render(__dirname + "/views/vp-calculator-results.ejs", renderedData);
+				
+		} else if(xp >= MINLEVEL && xp <= MAXLEVEL && !vp) {
 			db.collection("XPVictory").aggregate(
 			[{
 				$match:
@@ -151,24 +137,13 @@ app.post('/vp-calculator', function(req, res) {
 				var dev = stdDev(data["average"], data["vpList"]);
 				var renderedData = {
 						"XPLevel": xp,
-						"average" : targetVP,
 						"targetVP" : targetVP,
 						"minMax" : data["min"] + " - " + data["max"],
-						"vpRange" : parseInt(targetVP - dev) + " - " + parseInt(targetVP + dev)
+						"vpRange" : parseInt(targetVP - dev) + " - " + parseInt(targetVP + dev),
+						"sDevMean" : (Math.abs(xp - data["average"])/stdDev).toPrecision(3)
 				};
 				res.render(__dirname + "/views/vp-calculator-results.ejs", renderedData);
 			});
-		} else if(xp > 0 && xp < MINLEVEL) {
-			var renderedData = {
-					"XPLevel": xp,
-					"average" : parseInt(xp * LOWLEVELRATIO),
-					"targetVP" : parseInt(xp * LOWLEVELRATIO),
-					"vpRange" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp),
-					"minMax" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp)
-			};
-
-			res.render(__dirname + "/views/vp-calculator-results.ejs", renderedData);
-				
 		} else {
 			res.render(__dirname + "/views/vp-calculator-reject.ejs", {});
 		}	
@@ -176,7 +151,6 @@ app.post('/vp-calculator', function(req, res) {
 	});	
 
 });
-
 
 app.get("/XPVPAPI/year/:year/month/:month", function(req, res) {
 	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
@@ -249,6 +223,42 @@ app.get("/XPVPStatisticsAPI/year/:year/month/:month", function(req, res) {
 			});
 	});
 });
+
+function insertXPVPCollection(ip, collection) {
+	var date = new Date();
+	var firstDayOfMonth = new Date(date.getFullYear, date.getMonth(), 1);
+
+	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
+		for(var i = 0; i < collection.length; ++i) {
+			var xpvp = collection[i].split("/");
+			var xp = parseInt(xpvp[0]);
+			var vp = parseInt(xpvp[1]);
+			if(xp > 0 && xp <= MAXLEVEL && vp > 0 && vp <= MAXVP) {
+				db.collection("XPVictory").update(
+				{
+					"ip": ip, 
+					"XPLevel": xp, 
+					"VictoryPoint": vp,
+					"Date" : 
+					{
+						$gte: firstDayOfMonth
+					}
+				},
+				{
+					"ip" : ip,
+					"username" : "",
+					"XPLevel" : xp,
+					"VictoryPoint" : vp,
+					"Date" : new Date()
+
+				},
+				{
+					upsert:true
+				});
+			}
+		}
+	});	
+}
 
 function stdDev(mean, vpList) {
 	var devList = vpList.slice();
