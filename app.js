@@ -80,7 +80,7 @@ app.post('/vp-calculator', function(req, res) {
 	}
 
 	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
-		if(xp > 0 && xp < MINLEVEL && !vp) {
+		if(xp > 0 && xp < MINLEVEL) {
 			var renderedData = {
 					"XPLevel": xp,
 					"targetVP" : parseInt(xp * LOWLEVELRATIO),
@@ -90,7 +90,7 @@ app.post('/vp-calculator', function(req, res) {
 
 			res.render(__dirname + "/views/vp-calculator-results.ejs", renderedData);
 				
-		} else if(xp >= MINLEVEL && xp <= MAXLEVEL && !vp) {
+		} else if(xp >= MINLEVEL && xp <= MAXLEVEL) {
 			db.collection("XPVictory").aggregate(
 			[{
 				$match:
