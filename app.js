@@ -205,6 +205,77 @@ app.get("/XPVPAPI/year/:year/month/:month", function(req, res) {
 	});
 });
 
+app.get("/XPStatisticAPI/xp/:xp", function(req, res) {
+	var xp = parseInt(req.params.xp);
+	if(xp > 0 && xp < MINLEVEL) {
+		var renderedData = {
+				"XPLevel": xp,
+				"targetVP" : parseInt(xp * LOWLEVELRATIO),
+				"vpRange" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp),
+				"minMax" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp)
+		};
+		res.send(JSON.stringify(renderedData));	
+	} else if(xp >= MINLEVEL && xp <= MAXLEVEL) {
+		mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
+			db.collection("XPVictory").aggregate([
+			{
+				$match:
+				{
+					"Date":{
+						$gte: vpCalculatorMonth, 
+						$lt: vpCalculatorMonthTo
+					},
+				}
+			}, 
+			{
+				$group:
+				{
+					_id:"$XPLevel", 
+					min:{$min:"$VictoryPoint"}, 
+					max:{$max:"$VictoryPoint"}, 
+					average: {$avg:"$VictoryPoint"}, 
+					vpList:{$push: "$VictoryPoint"}
+				}
+			}, 
+			{
+				$project: 
+				{
+					_id:1, 
+					min:1, 
+					max:1, 
+					average:1, 
+					ratio:{$divide:["$average", "$_id"]}, 
+					vpList:1
+				}
+			}, 
+			{
+				$sort:{_id:1}
+			}
+			]).toArray(function(err, statistics) {
+				var expEq = exponentialEquation(statistics);
+				var targetVP = parseInt(expEq["equation"][0] * Math.exp(expEq["equation"][1] * xp)); 
+				var data = [];
+				for(var i = 0; i < statistics.length; ++i) {
+					if(parseInt(statistics[i]["_id"]) == xp) {
+						data = statistics[i];
+					}
+				}
+
+				var dev = stdDev(data["average"], data["vpList"]);
+				var renderedData = {
+						"XPLevel": xp,
+						"targetVP" : targetVP,
+						"minMax" : data["min"] + " - " + data["max"],
+						"vpRange" : parseInt(targetVP - dev) + " - " + parseInt(targetVP + dev)
+				};
+				res.send(JSON.stringify(renderedData));	
+			});
+		});
+	} else {
+		res.send({});
+	}
+});
+
 app.get("/XPVPStatisticsAPI/year/:year/month/:month", function(req, res) {
 	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
 		var yearFrom = parseInt(req.params.year);

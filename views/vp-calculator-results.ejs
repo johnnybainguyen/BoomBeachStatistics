@@ -3,18 +3,33 @@
 <% include header.ejs %>
 		<link rel='stylesheet' type='type/css' href='css/submission.css'>
 		<link rel='stylesheet' type='type/css' href='css/nav.css'>
+		<link rel="stylesheet" type="type/css" href="css/vp-calculator.css">
 		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="/js/vp-calculator.js"></script>
 		<script src="/js/google-analytics.js"></script>
 	</head>
 	<body>
 <% include nav.ejs %>
-		<div class='vp-calculator-result'><span id="vp-calculator-header"><b>VP Calculator</b></span><br><br>
-		XP Level: <b><%= XPLevel %></b><br>
-		Your VP should be around: <b><%= targetVP %></b><br>
-		Safe VP range to be around: <b><%= vpRange %></b><br>
-		VP minimum-maximum from collected data: <b><%= minMax %></b><br>
-		<a href="/vp-calculator">Back</a>
+		<div id="vp-calcuator-wrapper">
+			<div class="vp-button-wrapper">
+				<div class="vp-button-left">
+					<button id="vp-down-button" class="vp-update-button">--</button>
+				</div>
+			</div>
+			<div class="vp-button-wrapper">
+				<div class="vp-button-right">
+					<button id="vp-up-button" class="vp-update-button">++</button>
+				</div>
+			</div>
+			<div class='vp-calculator-result vp-center'><span id="vp-calculator-header"><b>VP Calculator</b></span><br><br>
+				XP Level: <b><span id="xp-level"><%= XPLevel %></span></b><br>
+				Your VP should be around: <b><span id="target-vp"><%= targetVP %></span></b><br>
+				Safe VP range to be around: <b><span id="vp-range"><%= vpRange %></span></b><br>
+				VP minimum-maximum from collected data: <b><span id="min-max"><%= minMax %></span></b><br><br>
+				<a href="/vp-calculator">Back</a>
+			</div>
 		</div>
+		<div style="clear:both"></div>
 <% include footer.ejs %>
 	</body>
 </html>
