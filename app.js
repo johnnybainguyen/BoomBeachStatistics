@@ -33,7 +33,54 @@ app.get("/vp-calculator", function(req, res) {
 });
 
 app.get("/charts", function(req, res) {
-	res.render(__dirname + "/views/charts.ejs", {});
+	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
+		var yearFrom = req.query.year ? parseInt(req.query.year) : currentDate.getFullYear();
+		var monthFrom = req.query.month ? parseInt(req.query.month) : currentDate.getMonth() + 1;
+		var yearTo = (monthFrom == 12) ? yearFrom + 1 : yearFrom;
+		var monthTo = (monthFrom % 12) + 1;
+
+		db.collection("XPVictory").aggregate([
+		{
+			$match:
+			{
+				"Date":
+				{
+					$gte: new Date(yearFrom + "-" + monthFrom + "-01"), 
+					$lt: new Date(yearTo + "-" + monthTo + "-01")
+				}
+			}
+		}, 
+		{
+			$group:
+			{
+				_id:"$XPLevel", 
+				min:{$min:"$VictoryPoint"}, 
+				max:{$max:"$VictoryPoint"}, 
+				average: {$avg:"$VictoryPoint"}, 
+				vpList:{$push: "$VictoryPoint"}
+			}
+		}, 
+		{
+			$project: 
+			{
+				_id:1, 
+				min:1, 
+				max:1, 
+				average:1, 
+				ratio:{$divide:["$average", "$_id"]}, 
+				vpList:1}
+			}, 
+		{
+			$sort:{_id:1}
+		}
+		]).toArray(function(err, statistics) {
+			for(var i = 0; i < statistics.length; ++i) {
+				statistics[i].median = calcMedian(statistics[i].vpList);
+				statistics[i].stdDev = stdDev(statistics[i]["average"], statistics[i]["vpList"]);
+			}
+			res.render(__dirname + "/views/charts.ejs", {"statistics": statistics});
+		});
+	});
 });
 
 app.get("/monthtomonth", function(req, res) {

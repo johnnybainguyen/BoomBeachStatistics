@@ -22,12 +22,6 @@ $(document).ready(function() {
 	$('select').select2();
 });
 
-function drawTable(stats) {
-	for(var i = 0; i < stats.length; ++i) {
-		drawRow(stats[i]);
-	}
-}
-
 function getParam(name) {
 	var url = location.search.substring(1);
 	var paramArray = url.split("&");
@@ -40,32 +34,8 @@ function getParam(name) {
 	return "";
 }
 
-function drawRow(rowData) {
-	var row = $("<tr />");
-	$('#stats-table').append(row);
-	row.append($("<td>" + rowData._id + "</td>"));
-	row.append($("<td>" + rowData.min + "</td>"));
-	row.append($("<td>" + rowData.max + "</td>"));
-	row.append($("<td>" + rowData.average.toPrecision(4) + "</td>"));
-	row.append($("<td>" + rowData.stdDev + "</td>"));
-	if(rowData.median) {
-		row.append($("<td>" + rowData.median + "</td>"));
-	} else {
-		row.append($("<td>" + rowData.min + "</td>"));
-	}
-	row.append($("<td>" + rowData.ratio.toPrecision(4) + "</td>"));
-	row.append($("<td>" + rowData.vpList.length + "</td>"));
-	row.append($("<td>" + rowData.vpList.join(", ").replace(/,/g, function() {
-		var c = 0;
-		return function(str) {
-			return ++c % 5 != 0 ? "" + str : ",<br>";
-		}
-	}()) + "</td>"));
-}
-
 $.get(urlStats, function(stats, status) {
 	myFunction(JSON.parse(stats));
-	drawTable(JSON.parse(stats));
 });
 
 function myFunction(stats) {
