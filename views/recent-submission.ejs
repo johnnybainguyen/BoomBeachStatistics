@@ -1,0 +1,41 @@
+<html>
+	<head>
+<% include header.ejs %>
+		<link rel='stylesheet' type='type/css' href='css/submission.css'>
+		<link rel="stylesheet" type="text/css" href="/css/styles.css">
+		<link rel="stylesheet" type="text/css" href="/css/table.css">
+		<link rel="stylesheet" type="text/css" href="/css/nav.css">
+		<link rel="stylesheet" type="text/css" href="/css/select.css">
+		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="/js/google-analytics.js"></script>
+	</head>
+	<body>
+<% include nav.ejs %>
+		<div id="submission-info">Dataset collected this month: <%= monthCount %></div>
+		<div class="table-wrapper"> 
+			<table id="istats-table">
+				<tr>
+					<th>IP</th>
+					<th>XP Level</th>
+					<th>Victory Point</th>
+					<th>Date</th>
+					<th>Quick Removal</th>
+				</tr>
+				<% for(var i = 0; i < recentRecords.length; ++i) { %>
+				<tr>
+					<td><a href="/recent?ip=<%= recentRecords[i]['ip'] %>"><%= recentRecords[i]["ip"] %></a></td>
+					<td><%= recentRecords[i]["XPLevel"] %></td>
+					<td><%= recentRecords[i]["VictoryPoint"] %></td>
+					<td><%= new Date(recentRecords[i]["Date"]).toString() %></td>
+					<td><%= "db.XPVictory.remove({ip:'" + recentRecords[i]["ip"] + "'})"%></td>
+				</tr>
+				<% } %>
+			</table>
+		</div>
+		<script>
+			setTimeout(function() {
+				window.location.reload(1);
+			}, 1000 * 60);
+		</script>
+	</body>
+</html>

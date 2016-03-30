@@ -18,15 +18,8 @@ var vpCalculatorLimit = 1500;
 
 // Views
 app.get("/", function(req, res) {
-	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
-		db.collection("XPVictory").find({
-				"Date": 
-				{
-					$gte:new Date(currentDate.getFullYear() + "-" + (currentDate.getMonth() + 1) + "-01")
-				}
-		}).count(function(err, count) {
-			res.render(__dirname + "/views/index.ejs", {"count":count});
-		});
+	getMonthCount(function(err, count) {
+		res.render(__dirname + "/views/index.ejs", {"count":count});
 	});
 });
 
@@ -74,6 +67,16 @@ app.post('/vp-calculator', function(req, res) {
 
 });
 
+app.get("/recent", function(req, res) {
+	var ip = req.query.ip;
+	getMonthCount(function(err, count) {
+		getRecentSubmission(100, ip, function(err, result) {
+			res.render(__dirname + "/views/recent-submission.ejs", {"recentRecords": result, "monthCount" : count});
+		});
+	});
+});
+
+
 // APIs
 app.get("/XPStatisticAPI/xp/:xp", function(req, res) {
 	var xp = parseInt(req.params.xp);
@@ -92,7 +95,28 @@ app.get("/XPVPStatisticsAPI/year/:year/month/:month", function(req, res) {
 	});
 });
 
+app.get("/recent-submission", function(req, res) {
+	var SUBMISSION_COUNT = 100;
+	getRecentSubmission(SUBMISSION_COUNT, function(err, result) {
+		res.send(JSON.stringify(result));
+	});
+});
+
 //Database Calls and Helper Functions
+function getMonthCount(callback) {
+	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
+		db.collection("XPVictory").find({
+				"Date": 
+				{
+					$gte:new Date(currentDate.getFullYear() + "-" + (currentDate.getMonth() + 1) + "-01")
+				}
+		}).count(function(err, count) {
+			callback(null, count);
+		});
+	});
+
+}
+
 function insertXPVPCollection(req, collection) {
 	var date = new Date();
 	var firstDayOfMonth = new Date(date.getFullYear, date.getMonth(), 1);
@@ -250,6 +274,15 @@ function getXPStatistic(xp, callback) {
 		callback(null, {});
 	}
 
+}
+
+function getRecentSubmission(count, ip, callback) {
+	var ipQuery = ip ? {"ip": ip} : {};
+	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
+		db.collection("XPVictory").find(ipQuery, {_id:0, ip:1, XPLevel:1, VictoryPoint:1, "Date": 1}).sort({"Date":-1}).limit(count).toArray(function(err, recentRecords) {
+			callback(null, recentRecords);
+		});
+	});
 }
 
 function calcMedian(vpList) {
