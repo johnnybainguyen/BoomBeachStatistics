@@ -5,6 +5,18 @@ var mongoClient = require("mongodb").MongoClient;
 var app = express();
 var http = require('http');
 var async = require("async");
+var fs = require("fs");
+var ocr = require("./ocr.js");
+var multer = require("multer");
+var storage = multer.diskStorage({
+	destination: function(req, file, cb) {
+		cb(null, "../uploads/")
+	},
+	filename: function(req, file, cb) {
+		cb(null, "image_" + Date.now() + ".png");
+	}
+	});
+var upload = multer({storage: storage});
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended: false }));
 app.use(bodyParser.json());
@@ -76,6 +88,22 @@ app.get("/recent", function(req, res) {
 	});
 });
 
+app.get("/ocr-tutorial", function(req, res) {
+	res.render(__dirname + "/views/ocr-tutorial.ejs", {});
+});
+
+app.get("/screenshot-recognition", function(req, res) { 
+	res.render(__dirname + "/views/screenshot-recognition.ejs", {recognitionList: ""});
+});
+
+app.post("/screenshot-recognition", upload.single("imageFile"), function(req, res) {
+	ocr.bbOCR(req.file.path, function(err, result) {
+		insertUserCollection(req, result);
+		res.render(__dirname + "/views/screenshot-recognition.ejs", {recognitionList: result});
+	});
+});
+
+
 
 // APIs
 app.get("/XPStatisticAPI/xp/:xp", function(req, res) {
@@ -119,7 +147,7 @@ function getMonthCount(callback) {
 
 function insertXPVPCollection(req, collection) {
 	var date = new Date();
-	var firstDayOfMonth = new Date(date.getFullYear, date.getMonth(), 1);
+	var firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
 	var ip = req.headers['x-forwarded-for'] ||
 		req.connection.remoteAddress ||
 		req.socket.remoteAddress ||
@@ -156,6 +184,46 @@ function insertXPVPCollection(req, collection) {
 			}
 		}
 	});	
+}
+
+function insertUserCollection(req, collection) {
+	var date = new Date();
+	var firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+	var ip = req.headers['x-forwarded-for'] ||
+		req.connection.remoteAddress ||
+		req.socket.remoteAddress ||
+		req.connection.socket.remoteAddress;
+	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
+		for(var i = 0; i < collection.length; ++i) {
+			var xp = parseInt(collection[i].xp);
+			var vp = parseInt(collection[i].vp);
+			var username = collection[i].name;
+			if(xp >= 10 && xp <= MAXLEVEL && vp > 0 && vp <= MAXVP) {
+				db.collection("XPVictory").update(
+				{
+					"ip": ip, 
+					"username": username,
+					"XPLevel": xp, 
+					"Date" : 
+					{
+						$gte: firstDayOfMonth
+					}
+				},
+				{
+					"ip" : ip,
+					"username" : username,
+					"XPLevel" : xp,
+					"VictoryPoint" : vp,
+					"Date" : new Date()
+
+				},
+				{
+					upsert:true
+				}
+				);
+			}
+		}
+	});
 }
 
 function getMonthStatistic(dateFrom, dateTo, callback) {
@@ -279,7 +347,7 @@ function getXPStatistic(xp, callback) {
 function getRecentSubmission(count, ip, callback) {
 	var ipQuery = ip ? {"ip": ip} : {};
 	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
-		db.collection("XPVictory").find(ipQuery, {_id:0, ip:1, XPLevel:1, VictoryPoint:1, "Date": 1}).sort({"Date":-1}).limit(count).toArray(function(err, recentRecords) {
+		db.collection("XPVictory").find(ipQuery, {_id:0, username:1, ip:1, XPLevel:1, VictoryPoint:1, "Date": 1}).sort({"Date":-1}).limit(count).toArray(function(err, recentRecords) {
 			callback(null, recentRecords);
 		});
 	});

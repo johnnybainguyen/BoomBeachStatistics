@@ -1,0 +1,48 @@
+<html>
+	<head>
+<% include header.ejs %>
+		<link rel='stylesheet' type='type/css' href='css/submission.css'>
+		<link rel="stylesheet" type="text/css" href="/css/styles.css">
+		<link rel="stylesheet" type="text/css" href="/css/table.css">
+		<link rel="stylesheet" type="text/css" href="/css/nav.css">
+		<link rel="stylesheet" type="text/css" href="/css/select.css">
+		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="/js/mindmup-editabletable.js"></script>
+		<script src="/js/google-analytics.js"></script>
+	</head>
+	<body>
+<% include nav.ejs %>
+		<div class="submission-form">
+			<b>Screenshot Recognition</b></br><br>
+			<a href="/ocr-tutorial">How-to-use Tutorial</a><br><br>
+			<form action="/screenshot-recognition" method="post" enctype="multipart/form-data">
+				<input type="file" name="imageFile"/><span class="side-note">(PNG Only)</span><br>
+				<span class="side-note">(For better results, use higher resolution screenshots)</span><br>
+				<input type="submit" value="Submit"/>
+			</form>
+		</div>
+		<% if(recognitionList) { %>
+		<div class="table-wrapper"> 
+			<table id="stats-table">
+				<tr>
+					<th>Username</th>
+					<th>XP</th>
+					<th>VP</th>
+					<th>Intel</th>
+				</tr>
+				<% for(var i = 0; i < recognitionList.length; ++i) { %>
+				<tr>
+					<td><%= recognitionList[i]["name"] %></td>
+					<td><%= recognitionList[i]["xp"] %></td>
+					<td><%= recognitionList[i]["vp"] %></td>
+					<td><%= recognitionList[i]["intel"] %></td>
+				</tr>
+				<% } %>
+			</table>
+		</div>
+		<script>
+			$("#stats-table").editableTableWidget();
+		</script>
+		<% } %>
+	</body>
+</html>

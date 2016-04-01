@@ -24,6 +24,7 @@
 				<% for(var i = 0; i < recentRecords.length; ++i) { %>
 				<tr>
 					<td><a href="/recent?ip=<%= recentRecords[i]['ip'] %>"><%= recentRecords[i]["ip"] %></a></td>
+					<td><%= recentRecords[i]["username"] %></td>
 					<td><%= recentRecords[i]["XPLevel"] %></td>
 					<td><%= recentRecords[i]["VictoryPoint"] %></td>
 					<td><%= new Date(recentRecords[i]["Date"]).toString() %></td>
