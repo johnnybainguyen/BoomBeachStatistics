@@ -29,11 +29,10 @@ function bbOCR(screenshotPath, callback) {
 	var TFDataLeftVPIntel =  TFDataRootName + TFDataLeftRootName + TFDataVPIntelName + fileType;
 	var TFDataRightXPName =  TFDataRootName + TFDataRightRootName + TFDataXPNameName + fileType;
 	var TFDataRightVPIntel =  TFDataRootName + TFDataRightRootName + TFDataVPIntelName + fileType;
-	var listOfFiles = [	TFDataName, TFDataSplitName, TFDataLeftColumnName, TFDataLeftSplitName, TFDataLeftLeftName,
+	var listOfFiles = [	screenshotPath, TFDataName, TFDataLeftColumnName, TFDataLeftLeftName,
 				TFDataLeftXPName, TFDataLeftRightName, TFDataLeftVPIntel, TFDataRightColumnName,
-				TFDataRightSplitName, TFDataRightLeftName, TFDataRightXPName, TFDataRightRightName,
+				TFDataRightLeftName, TFDataRightXPName, TFDataRightRightName,
 				TFDataRightVPIntel];
-	console.log(JSON.stringify(listOfFiles));
 	var firstBatchS = [	[screenshotPath, "-chop", "0x40%", TFDataName],
 				[TFDataName, "-gravity", "South" , "-chop", "0x10%", TFDataName],
 				[TFDataName, "-crop", "50%x100%", "+repage", TFDataSplitName]];
@@ -128,6 +127,9 @@ function bbOCR(screenshotPath, callback) {
 			})
 		}, 
 		function() {
+			listPlayer.sort(function(a, b) { 
+				return b.vp - a.vp;
+			});
 			callback(null, listPlayer);
 		}
 
@@ -136,7 +138,10 @@ function bbOCR(screenshotPath, callback) {
 
 }
 function parseTextList(text) {
-	var listText = text.split("\n");
+	var listText = [];
+	if(text) {
+		listText = text.split("\n");
+	}
 	listText = listText.filter(function(n) {
 		return n != "" && n != " ";
 	});
@@ -156,11 +161,15 @@ function mergeResult(arrayText, listPlayer) {
 		}
 	}
 	for(var i = 0; i < xpNameList.length; ++i) {
+		var xp = xpNameList[i] ? parseInt(xpNameList[i].substr(0, xpNameList[i].indexOf(' ')).replace(/[^0-9]/g, "")) : 0;
+		var username = xpNameList[i] ? xpNameList[i].substr(xpNameList[i].indexOf(" ")+1) : "";
+		var vp = vpIntelList[i*2] ? parseInt(vpIntelList[i*2].replace(/[^0-9]/g, "")) : 0;
+		var intel = vpIntelList[i*2+1] ? parseInt(vpIntelList[i*2+1].replace(/[^0-9]/g, "")) : 0;
 		var obj = {
-			xp : xpNameList[i].substr(0, xpNameList[i].indexOf(' ')).replace(/[^0-9]/g, ""),
-			name : xpNameList[i].substr(xpNameList[i].indexOf(" ") +1),
-			vp : vpIntelList[i*2].replace(/[^0-9]/g, ""),
-			intel : vpIntelList[i*2+1].replace(/[^0-9]/g, "")
+			xp : xp ? xp : 0 ,
+			name : username ? username : "",
+			vp : vp ? vp : 0,
+			intel : intel ? intel : 0
 		};
 		listPlayer.push(obj);
 	}

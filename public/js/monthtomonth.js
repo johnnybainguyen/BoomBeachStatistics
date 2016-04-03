@@ -1,4 +1,4 @@
-var dates = ["April 1, 2015", "December 1, 2015", "February 1, 2016", "March 1, 2016"];
+var dates = ["April 1, 2015", "December 1, 2015", "February 1, 2016", "March 1, 2016", "April 1, 2016"];
 var apiResults = [];
 
 $.get(generateAPIURL(new Date(dates[0])), function(stats1, status) {
@@ -9,7 +9,10 @@ $.get(generateAPIURL(new Date(dates[0])), function(stats1, status) {
 			apiResults.push([dates[2], JSON.parse(stats3)]);
 			$.get(generateAPIURL(new Date(dates[3])), function(stats4, status) {
 				apiResults.push([dates[3], JSON.parse(stats4)]);
-				myFunction(apiResults);
+				$.get(generateAPIURL(new Date(dates[4])), function(stats5, status) {
+					apiResults.push([dates[4], JSON.parse(stats5)]);
+					myFunction(apiResults);
+				});
 			});
 		});
 	});

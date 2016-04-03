@@ -17,6 +17,7 @@ $(document).ready(function() {
 			updateVPCalculator(level-1);
 		}
 	});	
+	vpCalculatorHistogram(vpList);
 });
 
 function updateVPCalculator(level) {
@@ -26,5 +27,23 @@ function updateVPCalculator(level) {
 		$('#target-vp').text(result.targetVP);
 		$("#vp-range").text(result.vpRange);
 		$("#min-max").text(result.minMax);
+		vpCalculatorHistogram(result.vpList);
 	});
+}
+
+function vpCalculatorHistogram(vpList) {
+	if(vpList.length) {
+		var histogramContainer = $('#vp-calculator-histogram');
+		var data = [{
+			x: vpList,
+			type: 'histogram'
+		}];
+		var layout = {
+			title: "Distribution of People Your Level",
+			xaxis: {title: "Victory Points"},
+			yaxis: {title: "Count"},
+			bargap: 0.05
+		};
+		Plotly.newPlot("vp-calculator-histogram", data, layout);
+	}
 }

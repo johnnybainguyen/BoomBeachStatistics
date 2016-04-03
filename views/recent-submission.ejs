@@ -16,8 +16,8 @@
 			<table id="istats-table">
 				<tr>
 					<th>IP</th>
-					<th>XP Level</th>
-					<th>Victory Point</th>
+					<th>Username</th>
+					<th>XP:VP</th>
 					<th>Date</th>
 					<th>Quick Removal</th>
 				</tr>
@@ -25,10 +25,9 @@
 				<tr>
 					<td><a href="/recent?ip=<%= recentRecords[i]['ip'] %>"><%= recentRecords[i]["ip"] %></a></td>
 					<td><%= recentRecords[i]["username"] %></td>
-					<td><%= recentRecords[i]["XPLevel"] %></td>
-					<td><%= recentRecords[i]["VictoryPoint"] %></td>
+					<td><%= recentRecords[i]["XPLevel"] + ":" + recentRecords[i]["VictoryPoint"] %></td>
 					<td><%= new Date(recentRecords[i]["Date"]).toString() %></td>
-					<td><%= "db.XPVictory.remove({ip:'" + recentRecords[i]["ip"] + "'})"%></td>
+					<td><%= "db.XPVictory.remove({ip:'" + recentRecords[i]["ip"] + "', XPLevel: " + recentRecords[i]["XPLevel"] + ", VictoryPoint: " + recentRecords[i]["VictoryPoint"] +"})"%></td>
 				</tr>
 				<% } %>
 			</table>

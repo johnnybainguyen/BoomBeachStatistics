@@ -5,12 +5,17 @@
 		<link rel='stylesheet' type='type/css' href='css/nav.css'>
 		<link rel="stylesheet" type="type/css" href="css/vp-calculator.css">
 		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="/js/plotly-latest.min.js"></script>
 		<script src="/js/vp-calculator.js"></script>
 		<script src="/js/google-analytics.js"></script>
+		<script>
+			var vpList = <%= JSON.stringify(vpList) %>
+		</script>	
+
 	</head>
 	<body>
 <% include nav.ejs %>
-		<div id="vp-calcuator-wrapper">
+		<div class="vp-calcuator-wrapper">
 			<div class="vp-button-wrapper">
 				<div class="vp-button-left">
 					<button id="vp-down-button" class="vp-update-button">--</button>
@@ -29,7 +34,13 @@
 				<a href="/vp-calculator">Back</a>
 			</div>
 		</div>
-		<div style="clear:both"></div>
+		<div style="clear:both"></div><br>
+		<% if(vpList.length) { %>
+		<div class="vp-calcuator-wrapper">
+			<div id="vp-calculator-histogram" class='vp-calculator-result vp-center'></div>
+		</div>
+		<% } %>
 <% include footer.ejs %>
+		
 	</body>
 </html>

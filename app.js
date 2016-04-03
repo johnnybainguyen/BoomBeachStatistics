@@ -7,7 +7,19 @@ var http = require('http');
 var async = require("async");
 var fs = require("fs");
 var ocr = require("./ocr.js");
+var CronJob = require("cron").CronJob;
 var multer = require("multer");
+app.use(express.static("public"));
+app.use(bodyParser.urlencoded({extended: false }));
+app.use(bodyParser.json());
+
+var MINLEVEL = 12;
+var MAXLEVEL = 64;
+var MAXVP = 3000;
+var LOWLEVELRATIO = 5;
+var currentDate = new Date();
+var vpCalculatorLimit = 3000;
+var dropboxDirectory = "../Dropbox/Camera Uploads/";
 var storage = multer.diskStorage({
 	destination: function(req, file, cb) {
 		cb(null, "../uploads/")
@@ -17,16 +29,27 @@ var storage = multer.diskStorage({
 	}
 	});
 var upload = multer({storage: storage});
-app.use(express.static("public"));
-app.use(bodyParser.urlencoded({extended: false }));
-app.use(bodyParser.json());
+var myIP = {ip: "172.112.61.43"};
 
-var MINLEVEL = 20;
-var MAXLEVEL = 64;
-var MAXVP = 3000;
-var LOWLEVELRATIO = 5;
-var currentDate = new Date();
-var vpCalculatorLimit = 1500;
+
+// Cron Job for my personal use
+var job = new CronJob("0 * * * * *", function() {
+	var extractedData = [];
+	fs.readdir(dropboxDirectory, function(err, files) {
+		async.eachSeries(files, function iteratee(item, callback) {
+			ocr.bbOCR(dropboxDirectory + item, function(err, result) {
+				extractedData = extractedData.concat(result);
+				callback();
+			});
+		},
+		function() {
+			insertUserCollection(myIP, extractedData);
+		});
+					
+	});
+}, function() {},
+true
+);
 
 // Views
 app.get("/", function(req, res) {
@@ -82,7 +105,7 @@ app.post('/vp-calculator', function(req, res) {
 app.get("/recent", function(req, res) {
 	var ip = req.query.ip;
 	getMonthCount(function(err, count) {
-		getRecentSubmission(100, ip, function(err, result) {
+		getRecentSubmission(1000, ip, function(err, result) {
 			res.render(__dirname + "/views/recent-submission.ejs", {"recentRecords": result, "monthCount" : count});
 		});
 	});
@@ -124,7 +147,7 @@ app.get("/XPVPStatisticsAPI/year/:year/month/:month", function(req, res) {
 });
 
 app.get("/recent-submission", function(req, res) {
-	var SUBMISSION_COUNT = 100;
+	var SUBMISSION_COUNT = 1000;
 	getRecentSubmission(SUBMISSION_COUNT, function(err, result) {
 		res.send(JSON.stringify(result));
 	});
@@ -189,7 +212,8 @@ function insertXPVPCollection(req, collection) {
 function insertUserCollection(req, collection) {
 	var date = new Date();
 	var firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-	var ip = req.headers['x-forwarded-for'] ||
+	var ip = req.ip ||
+		req.headers['x-forwarded-for'] ||
 		req.connection.remoteAddress ||
 		req.socket.remoteAddress ||
 		req.connection.socket.remoteAddress;
@@ -198,7 +222,7 @@ function insertUserCollection(req, collection) {
 			var xp = parseInt(collection[i].xp);
 			var vp = parseInt(collection[i].vp);
 			var username = collection[i].name;
-			if(xp >= 10 && xp <= MAXLEVEL && vp > 0 && vp <= MAXVP) {
+			if((xp > 10 && xp < 25 && vp > 0 && vp < 200) || (xp >= 20 && xp <= MAXLEVEL && vp >= 100 && vp <= MAXVP)) {
 				db.collection("XPVictory").update(
 				{
 					"ip": ip, 
@@ -279,7 +303,8 @@ function getXPStatistic(xp, callback) {
 				"XPLevel": xp,
 				"targetVP" : parseInt(xp * LOWLEVELRATIO),
 				"vpRange" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp),
-				"minMax" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp)
+				"minMax" : parseInt(xp * LOWLEVELRATIO - xp) + "-" + parseInt(xp * LOWLEVELRATIO + xp),
+				"vpList" : []
 		};
 		callback(null, data);	
 	} else if(xp >= MINLEVEL && xp <= MAXLEVEL) {
@@ -333,7 +358,8 @@ function getXPStatistic(xp, callback) {
 						"XPLevel": xp,
 						"targetVP" : targetVP,
 						"minMax" : data["min"] + " - " + data["max"],
-						"vpRange" : parseInt(targetVP - dev) + " - " + parseInt(targetVP + dev)
+						"vpRange" : parseInt(targetVP - dev) + " - " + parseInt(targetVP + dev),
+						"vpList" : data["vpList"]
 				};
 				callback(null, data);
 			});
@@ -372,7 +398,7 @@ function calcMedian(vpList) {
 }
 
 function stdDev(mean, vpList) {
-	var devList = vpList.slice();
+	var devList = vpList ? vpList.slice() : [];
 	for(var i = 0; i < devList.length; ++i) {
 		devList[i] = Math.pow(devList[i] - mean, 2);
 	}
