@@ -1,6 +1,23 @@
+#charts-wrapper {
+  text-align: center;
+  margin: 5px; }
+
+.vp-calculator-wrapper {
+  display: inline-block;
+  margin: 10px; }
+
 .vp-button-left {
   margin-top: 80px;
   float: left; }
+
+.vp-calculator-result {
+  line-height: 25px;
+  text-align: center;
+  width: 400px;
+  border: 2px solid;
+  border-color: #ededed;
+  border-radius: 25px;
+  padding: 20px; }
 
 .vp-button-right {
   margin-top: 80px;

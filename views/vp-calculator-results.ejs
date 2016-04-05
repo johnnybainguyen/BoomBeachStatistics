@@ -7,11 +7,7 @@
 		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
 		<script src="/js/plotly-latest.min.js"></script>
 		<script src="/js/vp-calculator.js"></script>
-		<script src="/js/google-analytics.js"></script>
-		<script>
-			var vpList = <%= JSON.stringify(vpList) %>
-		</script>	
-
+		<script src="/js/google-analytics.js"></script>		
 	</head>
 	<body>
 <% include nav.ejs %>
@@ -28,18 +24,31 @@
 			</div>
 			<div class='vp-calculator-result vp-center'><span id="vp-calculator-header"><b>VP Calculator</b></span><br><br>
 				XP Level: <b><span id="xp-level"><%= XPLevel %></span></b><br>
+				VP Level: <b><span id="vp-level"><%= VictoryPoint %></span></b><br>
 				Your VP should be around: <b><span id="target-vp"><%= targetVP %></span></b><br>
 				Safe VP range to be around: <b><span id="vp-range"><%= vpRange %></span></b><br>
-				VP minimum-maximum from collected data: <b><span id="min-max"><%= minMax %></span></b><br><br>
+				VP minimum-maximum from collected data: <b><span id="min-max"><%= minMax %></span></b><br>
+				Average: <b><span id="average"><%= average.toPrecision(4) %></span></b><br><br>
 				<a href="/vp-calculator">Back</a>
 			</div>
 		</div>
-		<div style="clear:both"></div><br>
-		<% if(vpList.length) { %>
-		<div class="vp-calcuator-wrapper">
-			<div id="vp-calculator-histogram" class='vp-calculator-result vp-center'></div>
+		<div style="clear:both"></div>
+		<div id="charts-wrapper">	
+			<div class="vp-calculator-wrapper">
+				<div id="vp-calculator-vp-distribution" class='vp-calculator-result'></div>
+			</div>
+
+			<div class="vp-calculator-wrapper">
+				<div id="vp-calculator-xp-distribution" class='vp-calculator-result'></div>
+			</div>
 		</div>
-		<% } %>
+
+		<script>
+			var vpList = <%= JSON.stringify(vpList) %>
+			var xpList = <%= JSON.stringify(xpList) %>
+		</script>	
+
+
 <% include footer.ejs %>
 		
 	</body>

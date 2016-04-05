@@ -2,6 +2,7 @@ var im = require("imagemagick");
 var tesseract = require('node-tesseract');
 var async = require('async');
 var fs = require("fs");
+var path = require("path");
 
 function bbOCR(screenshotPath, callback) {
 	var timestamp = Date.now() + "_";
@@ -54,88 +55,90 @@ function bbOCR(screenshotPath, callback) {
 		psm: 6
 	};
 
-
-	async.series([
-		function(callback) {
-			im.convert(firstBatchS[0], function(err, stdout) {
-				callback();
-			});
-		},
-		function(callback) {
-			im.convert(firstBatchS[1], function(err, stdout) {
-				callback();
-			});
-		},
-		function(callback) {
-			im.convert(firstBatchS[2], function(err, stdout) {
-				callback();
-			});
-		},
-		function(callback) {
-			async.parallel([
-				function(callback) {
-					im.convert(secondBatchP1[0], function() {
-						async.parallel([
-							function(callback) {
-								im.convert(secondBatchP1[1], function(err, stdout) {
-									tesseract.process(TFDataLeftXPName, ocrSettingHorizontal, function(err, text) {
-										callback(null, {"XPName":text});
+	
+	if(path.extname(screenshotPath).toLowerCase() == fileType) {
+		async.series([
+			function(callback) {
+				im.convert(firstBatchS[0], function(err, stdout) {
+					callback();
+				});
+			},
+			function(callback) {
+				im.convert(firstBatchS[1], function(err, stdout) {
+					callback();
+				});
+			},
+			function(callback) {
+				im.convert(firstBatchS[2], function(err, stdout) {
+					callback();
+				});
+			},
+			function(callback) {
+				async.parallel([
+					function(callback) {
+						im.convert(secondBatchP1[0], function() {
+							async.parallel([
+								function(callback) {
+									im.convert(secondBatchP1[1], function(err, stdout) {
+										tesseract.process(TFDataLeftXPName, ocrSettingHorizontal, function(err, text) {
+											callback(null, {"XPName":text});
+										});
 									});
-								});
-							},
-							function(callback) {
-								im.convert(secondBatchP1[2], function(err, stdout) {
-									tesseract.process(TFDataLeftVPIntel, ocrSettingVertical, function(err, text) {
-										callback(null, {"VPIntel":text});
-									});
-								});
-							}
-						], function(err, arrayResult) {
-							mergeResult(arrayResult, listPlayer);					
-							callback();
-						});
-					});
-				},
-				function(callback) {
-					im.convert(secondBatchP2[0], function() {
-						async.parallel([
-							function(callback) {
-								im.convert(secondBatchP2[1], function(err, stdout) {
-									tesseract.process(TFDataRightXPName, ocrSettingHorizontal, function(err, text) {
-										callback(null, {"XPName":text});
-									});
-								});
-							},
-							function(callback) {
-								im.convert(secondBatchP2[2], function(err, stdout) {
-									im.convert(secondBatchP2[3], function(err, stdout) {
-										tesseract.process(TFDataRightVPIntel, ocrSettingVertical,function(err, text) {
+								},
+								function(callback) {
+									im.convert(secondBatchP1[2], function(err, stdout) {
+										tesseract.process(TFDataLeftVPIntel, ocrSettingVertical, function(err, text) {
 											callback(null, {"VPIntel":text});
 										});
-									});							
-								});
-							}
-						], function(err, arrayResult) {
-							mergeResult(arrayResult, listPlayer);					
-							callback();
+									});
+								}
+							], function(err, arrayResult) {
+								mergeResult(arrayResult, listPlayer);					
+								callback();
+							});
 						});
-					});
-				}
-			], function() {
-				removeAllCreatedFiles(listOfFiles);
-				callback();
-			})
-		}, 
-		function() {
-			listPlayer.sort(function(a, b) { 
-				return b.vp - a.vp;
-			});
-			callback(null, listPlayer);
-		}
+					},
+					function(callback) {
+						im.convert(secondBatchP2[0], function() {
+							async.parallel([
+								function(callback) {
+									im.convert(secondBatchP2[1], function(err, stdout) {
+										tesseract.process(TFDataRightXPName, ocrSettingHorizontal, function(err, text) {
+											callback(null, {"XPName":text});
+										});
+									});
+								},
+								function(callback) {
+									im.convert(secondBatchP2[2], function(err, stdout) {
+										im.convert(secondBatchP2[3], function(err, stdout) {
+											tesseract.process(TFDataRightVPIntel, ocrSettingVertical,function(err, text) {
+												callback(null, {"VPIntel":text});
+											});
+										});							
+									});
+								}
+							], function(err, arrayResult) {
+								mergeResult(arrayResult, listPlayer);					
+								callback();
+							});
+						});
+					}
+				], function() {
+					removeAllCreatedFiles(listOfFiles);
+					callback();
+				})
+			}, 
+			function() {
+				listPlayer.sort(function(a, b) { 
+					return b.vp - a.vp;
+				});
+				callback(null, listPlayer);
+			}
 
-	]);
-
-
+		]);
+	} else {
+		fs.unlink(screenshotPath);
+	}
 }
 function parseTextList(text) {
 	var listText = [];

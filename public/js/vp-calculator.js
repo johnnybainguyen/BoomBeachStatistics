@@ -1,9 +1,11 @@
+var MINLEVEL = 12;
 var MAXLEVEL = 64;
 $(document).ready(function() {
 	$("#vp-up-button").click(function() {
 		var level = parseInt($("#xp-level").text());
+		var vp = parseInt($("#vp-level").text());
 		if(level == MAXLEVEL) {
-			updateVPCalculator(1);
+			updateVPCalculator(MINLEVEL);
 		} else {
 			updateVPCalculator(level+1);
 		}
@@ -11,39 +13,43 @@ $(document).ready(function() {
 
 	$("#vp-down-button").click(function() {
 		var level = parseInt($("#xp-level").text());
-		if(level == 1) {
+		var vp = parseInt($("#vp-level").text());
+		if(level == MINLEVEL) {
 			updateVPCalculator(MAXLEVEL);
 		} else {
 			updateVPCalculator(level-1);
 		}
 	});	
-	vpCalculatorHistogram(vpList);
+	vpCalculatorDistribution("vp-calculator-vp-distribution", "VP of Others Your Level", "Count", "Victory Point", vpList);
+	vpCalculatorDistribution("vp-calculator-xp-distribution", "Probability of who you will be matched against", "Count", "Experience Level", xpList);
 });
 
 function updateVPCalculator(level) {
-	$.get("/XPStatisticAPI/xp/" + level, function (result, status) {
+	$.get("/UserXPVPStatisticAPI/xp/" + level, function (result, status) {
 		var result = JSON.parse(result);
 		$('#xp-level').text(result.XPLevel);
+		$("#vp-level").text(result.targetVP);
 		$('#target-vp').text(result.targetVP);
 		$("#vp-range").text(result.vpRange);
 		$("#min-max").text(result.minMax);
-		vpCalculatorHistogram(result.vpList);
+		$("#average").text(result.average.toPrecision(4));
+		vpCalculatorDistribution("vp-calculator-vp-distribution", "VP of Others Your Level", "Count", "Victory Point", result.vpList);
+		vpCalculatorDistribution("vp-calculator-xp-distribution", "Probability of who you will be matched against", "Count", "Experience Level", result.xpList);
 	});
 }
 
-function vpCalculatorHistogram(vpList) {
-	if(vpList.length) {
-		var histogramContainer = $('#vp-calculator-histogram');
+function vpCalculatorDistribution(container, title, yTitle, xTitle, list) {
+	if(list.length) {
 		var data = [{
-			x: vpList,
+			x: list,
 			type: 'histogram'
 		}];
 		var layout = {
-			title: "Distribution of People Your Level",
-			xaxis: {title: "Victory Points"},
-			yaxis: {title: "Count"},
+			title: title,
+			xaxis: {title: xTitle},
+			yaxis: {title: yTitle},
 			bargap: 0.05
 		};
-		Plotly.newPlot("vp-calculator-histogram", data, layout);
+		Plotly.newPlot(container, data, layout);
 	}
 }
