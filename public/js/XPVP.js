@@ -1,17 +1,11 @@
 var xmlhttp = new XMLHttpRequest()
 var date = new Date();
 var monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-var statsKey = {"xp": "_id", "vp": "vp", "min":"min", "max":"max", "average": "average", "median":"median", "ratio":"ratio"};
 var month = getParam("month") ? getParam("month") : date.getUTCMonth() + 1;
 var year = getParam("year") ? getParam("year") : date.getUTCFullYear();
-var levelFrom = getParam("levelfrom");
-var levelTo = getParam("levelto");
 var xAxis = getParam("x") ? getParam("x") : "xp";
 var yAxis = getParam("y") ? getParam("y") : "vp";
 var graphType = getParam("graphtype") ? getParam("graphtype") : "exponential";
-var url = "/XPVPAPI/year/" + year + "/month/" + month;
-var urlStats = "/XPVPStatisticsAPI/year/" + year + "/month/" + month;
-var dataPoints = [];	
 
 $(document).ready(function() {
 	$('#x').val(xAxis);
@@ -20,6 +14,7 @@ $(document).ready(function() {
 	$('#month').val(month);
 	$('#year').val(year);
 	$('select').select2();
+	displayMonth();
 });
 
 function getParam(name) {
@@ -34,33 +29,7 @@ function getParam(name) {
 	return "";
 }
 
-$.get(urlStats, function(stats, status) {
-	myFunction(JSON.parse(stats));
-});
-
-function myFunction(stats) {
-	if(levelFrom && levelTo) {
-		stats = stats.filter(function(item) {
-			return item[statsKey['xp']] >= levelFrom && item[statsKey['xp']] <= levelTo;
-		});
-	}	
-	for(var i = 0; i < stats.length; ++i) {
-		// Parsing the VPList on the browser end
-		if(xAxis == "vp" || yAxis == "vp") {
-			for(var j = 0; j < stats[i].vpList.length; ++j) {
-				if(xAxis == "vp" && yAxis == "vp") {
-					dataPoints.push([stats[i].vpList[j], stats[i].vpList[j]]);	
-				} else if(xAxis == "vp") {
-					dataPoints.push([stats[i].vpList[j], stats[i][statsKey[yAxis]]]);
-				} else {
-					dataPoints.push([stats[i][statsKey[xAxis]], stats[i].vpList[j]]);
-				}	
-			}
-		} else {
-			dataPoints.push([stats[i][statsKey[xAxis]], stats[i][statsKey[yAxis]]]);
-		}
-	}
-
+function displayMonth() {
 	$(function() {
 		$('#container').highcharts( {
 			chart: {
@@ -111,7 +80,7 @@ function myFunction(stats) {
 					color: 'rgba(223, 83, 83, .9)',
 				},
 				color: 'rgba(119,152,191,.5)',
-				data: dataPoints 
+				data: stats 
 			}]
 		});
 	});

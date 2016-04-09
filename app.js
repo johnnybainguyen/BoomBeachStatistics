@@ -8,7 +8,6 @@ var http = require('http');
 var async = require("async");
 var fs = require("fs");
 var ocr = require("./ocr.js");
-var CronJob = require("cron").CronJob;
 var multer = require("multer");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended: false }));
@@ -20,7 +19,7 @@ var MAXVP = 3000;
 var LOWLEVELRATIO = 5;
 var currentDate = new Date();
 var RECENT_RESULT_LIMIT = 1000;
-var vpCalculatorLimit = 6000;
+var vpCalculatorLimit = 10000;
 var dropboxDirectory = "../Dropbox/Camera Uploads/";
 var storage = multer.diskStorage({
 	destination: function(req, file, cb) {
@@ -33,31 +32,31 @@ var storage = multer.diskStorage({
 var upload = multer({storage: storage});
 var myIP = {ip: "172.112.61.43"};
 
-
-// Cron Job for my personal use
-var job = new CronJob("59 * * * * *", function() {
-	//var extractedData = [];
+// Conr Script for my personal use
+setInterval(function() {
 	fs.readdir(dropboxDirectory, function(err, files) {
-		async.eachSeries(files, function iteratee(item, callback) {
+		async.eachLimit(files, 3, function iteratee(item, cb) {
 			ocr.bbOCR(dropboxDirectory + item, function(err, result) {
-				//extractedData = extractedData.concat(result);
 				insertUserCollection(myIP, result);
-				callback();
+				cb();
 			});
 		},
 		function() {
-			//insertUserCollection(myIP, extractedData);
 		});
 					
 	});
-}, function() {},
-true
-);
+}, 1000 * 60 * 10);
 
 // Views
 app.get("/", function(req, res) {
 	getMonthCount(function(err, count) {
 		res.render(__dirname + "/views/index.ejs", {"count":count});
+	});
+});
+
+app.get("/xpvp-submission", function(req, res) {
+	getMonthCount(function(err, count) {
+		res.render(__dirname + "/views/xpvp-submission.ejs", {"count":count});
 	});
 });
 
@@ -67,11 +66,30 @@ app.get("/vp-calculator", function(req, res) {
 
 app.get("/charts", function(req, res) {
 	var yearFrom = req.query.year ? parseInt(req.query.year) : currentDate.getFullYear();
+	var statsKey = {"xp": "_id", "vp": "vp", "min":"min", "max":"max", "average": "average", "median":"median", "ratio":"ratio"};
+	var dataPoints = [];		
+	var xAxis = req.query.xAxis ? req.query.xAxis : "xp";
+	var yAxis = req.query.yAxis ? req.query.yAxis : "vp";	
 	var monthFrom = req.query.month ? parseInt(req.query.month) : currentDate.getMonth() + 1;
 	var yearTo = (monthFrom == 12) ? yearFrom + 1 : yearFrom;
 	var monthTo = (monthFrom % 12) + 1;
-	getMonthStatistic(new Date(yearFrom + "-" + monthFrom + "-01"), new Date(yearTo + "-" + monthTo + "-01"), function(err, result) {
-		res.render(__dirname + "/views/charts.ejs", {"statistics": result});
+	getMonthStatistic(new Date(yearFrom + "-" + monthFrom + "-01"), new Date(yearTo + "-" + monthTo + "-01"), function(err, stats) {
+		for(var i = 0; i < stats.length; ++i) {
+			if(xAxis == "vp" || yAxis == "vp") {
+				for(var j = 0; j < stats[i].vpList.length; ++j) {
+					if(xAxis == "vp" && yAxis == "vp") {
+						dataPoints.push([stats[i].vpList[j], stats[i].vpList[j]]);	
+					} else if(xAxis == "vp") {
+						dataPoints.push([stats[i].vpList[j], stats[i][statsKey[yAxis]]]);
+					} else {
+						dataPoints.push([stats[i][statsKey[xAxis]], stats[i].vpList[j]]);
+					}	
+				}
+			} else {
+				dataPoints.push([stats[i][statsKey[xAxis]], stats[i][statsKey[yAxis]]]);
+			}
+		}
+		res.render(__dirname + "/views/charts.ejs", {"statistics": dataPoints});
 	});
 });
 
@@ -118,14 +136,10 @@ app.get("/ocr-tutorial", function(req, res) {
 	res.render(__dirname + "/views/ocr-tutorial.ejs", {});
 });
 
-app.get("/screenshot-recognition", function(req, res) { 
-	res.render(__dirname + "/views/screenshot-recognition.ejs", {recognitionList: ""});
-});
-
 app.post("/screenshot-recognition", upload.single("imageFile"), function(req, res) {
 	ocr.bbOCR(req.file.path, function(err, result) {
 		insertUserCollection(req, result);
-		res.render(__dirname + "/views/screenshot-recognition.ejs", {recognitionList: result});
+		res.render(__dirname + "/views/thankyou.ejs", {});
 	});
 });
 
@@ -145,6 +159,29 @@ app.get("/XPVPStatisticsAPI/year/:year/month/:month", function(req, res) {
 	var monthTo = (monthFrom % 12) + 1;
 	getMonthStatistic(new Date(yearFrom + "-" + monthFrom + "-01"), new Date(yearTo + "-" + monthTo + "-01"), function(err, result) {
 		res.send(JSON.stringify(result));
+	});
+});
+
+app.get("/RemoveXPVP/xp/:xp/vp/:vp/ip/:ip", function(req, res) {
+	var ip = req.headers['x-forwarded-for'] ||
+		req.connection.remoteAddress ||
+		req.socket.remoteAddress ||
+		req.connection.socket.remoteAddress;
+
+	var xp = parseInt(req.params.xp);	
+	var vp = parseInt(req.params.vp);
+	var deleteIP = req.params.ip;
+	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
+		if(ip == myIP.ip) {
+			db.collection("XPVictory").remove({
+				ip : deleteIP,
+				VictoryPoint: vp,
+				XPLevel: xp
+			});
+			res.send(200);
+		} else {
+			res.send(400);
+		}
 	});
 });
 
@@ -176,7 +213,9 @@ function insertXPVPCollection(req, collection) {
 			var xpvp = collection[i].split("/");
 			var xp = parseInt(xpvp[0]);
 			var vp = parseInt(xpvp[1]);
-			if(xp >= MINLEVEL && xp <= MAXLEVEL && vp > 0 && vp <= MAXVP) {
+			if(	(xp >= MINLEVEL && xp < 30 && vp > 0 && vp < 200) || 
+				(xp >= 25 && xp <= 45 && vp >= 100 && vp <= 1000) ||
+				(xp > 45 && xp < MAXLEVEL && vp >= 100 && vp <= MAXVP)) {
 				db.collection("XPVictory").update(
 				{
 					"ip": ip, 
@@ -205,6 +244,8 @@ function insertXPVPCollection(req, collection) {
 }
 
 function insertUserCollection(req, collection) {
+	console.log("Collection");
+	console.log(collection);
 	var date = new Date();
 	var firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
 	var ip = req.ip ||
@@ -357,7 +398,7 @@ function getUserXPVPStatistic(xp, vp, callback) {
 				});
 			},
 			function(callback) { 
-				getVPRangeStatistics(data.XPLevel, data.VictoryPoint, function(err, xpList) {
+				getVPRangeStatistics(data.XPLevel, data.VictoryPoint, data.minVPRange, data.maxVPRange, function(err, xpList) {
 					data.xpList = xpList;
 					callback();
 				});
@@ -371,11 +412,11 @@ function getUserXPVPStatistic(xp, vp, callback) {
 
 }
 
-function getVPRangeStatistics(XPLevel, targetVP, callback) {
+function getVPRangeStatistics(XPLevel, targetVP, min, max, callback) {
 	mongoClient.connect("mongodb://localhost:27017/boombeachdb", function(err, db) {
 		db.collection("XPVictory").find({
 			//"XPLevel" : { $gte : XPLevel - 10, $lte: XPLevel + 10},
-			"VictoryPoint" : { $gte: targetVP - 50, $lte: targetVP + 50 },
+			"VictoryPoint" : { $gte: min, $lte: max },
 			"Date" : { $gte : new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)}
 		},  {
 			_id : 0,

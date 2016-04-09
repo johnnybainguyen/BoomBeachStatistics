@@ -70,39 +70,10 @@
 		</div>
 		<br>
 		<div id="container"></div>
-		<!--div class="table-wrapper"> 
-			<table id="istats-table">
-				<tr>
-					<th>Level</th>
-					<th>Min VP</th>
-					<th>Max VP</th>
-					<th>Average VP</th>
-					<th>Standard Deviation</th>
-					<th>Median VP</th>
-					<th>Ratio VP</th>
-					<th>Number of Entries</th>
-					<th>List of VP</th>
-				</tr>
-				<% for(var i = 0; i < statistics.length; ++i) { %>
-				<tr>
-					<td><%= statistics[i]["_id"] %></td>
-					<td><%= statistics[i]["min"] %></td>
-					<td><%= statistics[i]["max"] %></td>
-					<td><%= parseInt(statistics[i]["average"]) %></td>
-					<td><%= statistics[i]["stdDev"] %></td>
-					<td><%= statistics[i]["median"] %></td>
-					<td><%= statistics[i]["ratio"].toPrecision(4) %></td>
-					<td><%= statistics[i]["vpList"].length %></td>
-					<td>	<% for(var j = 0; j <= parseInt(statistics[i]["vpList"].length/6); ++j) { %>
-						<%= 	statistics[i]["vpList"].slice(j *  6, j * 6 + 6).join(", ") %>
-							<br>
-						<% } %>
+		<script>
+			var stats = <%- JSON.stringify(statistics) %>;
+		</script>
 
-					</td>
-				</tr>
-				<% } %>
-			</table>
-		</div-->
 <% include footer.ejs %>
 	</body>
 </html>

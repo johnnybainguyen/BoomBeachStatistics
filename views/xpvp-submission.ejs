@@ -1,0 +1,62 @@
+<html>
+	<head>
+<% include header.ejs %>
+		<link rel='stylesheet' type='type/css' href='css/submission.css'>
+		<link rel="stylesheet" type="text/css" href="/css/styles.css">
+		<link rel="stylesheet" type="text/css" href="/css/table.css">
+		<link rel="stylesheet" type="text/css" href="/css/nav.css">
+		<link rel="stylesheet" type="text/css" href="/css/select.css">
+		<link rel="stylesheet" type="type/css" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+		<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+		<script src="/js/google-analytics.js"></script>
+		<script src="/js/mindmup-editabletable.js"></script>
+		<script>
+			$(function() {
+				$("#submission-tooltip").tooltip({
+					content: function(callback) {
+						callback($(this).prop('title').replace(new RegExp("\\|", "g"), '<br />'));
+					}
+				});
+			});
+		</script>
+	</head>
+	<body>
+<% include nav.ejs %>
+
+		<div id='submission-info'>Dataset collected this month: <%= count %></div>
+		<div class="xpvp-note">The best data are newly matched players on your map and your TF XP/VP.</div><br>
+		<div class="submission-outer"> 
+			<div class="submission-wrapper">
+				<div id="single-submission" class='submission-form'><b>Single Submission</b><br><br>
+					<form action='/XPVPSubmit' method='post'>
+						Experience Level:<br>
+						<input type='text' name='XPLevel'><br><br>
+						Victory Point:<br>
+						<input type='text' name='victoryPoint'><br>
+						<input type='submit' name='Submit'>
+					</form>
+				</div>
+				<div id="group-submission" class='submission-form'><b>Group submission</b>  <img id="submission-tooltip" title="Use the following format:||XP/VP|XP/VP|XP/VP|XP/VP|..." src="/images/help.png" height="16px" width="16px"><br><br>
+					<form action='/XPVPListSubmit' method='post'>
+						XP VP List:<br>
+						<textarea placeholder='Use the format(XP/VP followed by a new line): &#10;&#10;46/412&#10;32/223&#10;34/271&#10;37/252&#10;31/208&#10;46/448' type='text' cols='20' rows='20' name='XPVPList'></textarea><br>
+						<input type='submit' name='Submit'>
+					</form>
+				</div>
+				<div style="clear:both"></div>
+			</div>
+		</div><br>
+		<div class="submission-form">
+			<b>Screenshot Submission</b></br><br>
+			<a href="/ocr-tutorial">How-to-use Tutorial</a><br><br>
+			<form action="/screenshot-recognition" method="post" enctype="multipart/form-data">
+				<input type="file" name="imageFile"/><span class="side-note">(PNG Only)</span><br>
+				<span class="side-note">(For better results, use higher resolution screenshots)</span><br>
+				<input type="submit" value="Submit"/>
+			</form>
+		</div>
+
+<% include footer.ejs %>
+	</body>
+</html>

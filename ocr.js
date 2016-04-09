@@ -30,10 +30,10 @@ function bbOCR(screenshotPath, callback) {
 	var TFDataLeftVPIntel =  TFDataRootName + TFDataLeftRootName + TFDataVPIntelName + fileType;
 	var TFDataRightXPName =  TFDataRootName + TFDataRightRootName + TFDataXPNameName + fileType;
 	var TFDataRightVPIntel =  TFDataRootName + TFDataRightRootName + TFDataVPIntelName + fileType;
-	var listOfFiles = [	screenshotPath, TFDataName, TFDataLeftColumnName, TFDataLeftLeftName,
+	var listOfFiles = [	TFDataName, TFDataLeftColumnName, TFDataLeftLeftName,
 				TFDataLeftXPName, TFDataLeftRightName, TFDataLeftVPIntel, TFDataRightColumnName,
 				TFDataRightLeftName, TFDataRightXPName, TFDataRightRightName,
-				TFDataRightVPIntel];
+				TFDataRightVPIntel, screenshotPath];
 	var firstBatchS = [	[screenshotPath, "-chop", "0x40%", TFDataName],
 				[TFDataName, "-gravity", "South" , "-chop", "0x10%", TFDataName],
 				[TFDataName, "-crop", "50%x100%", "+repage", TFDataSplitName]];

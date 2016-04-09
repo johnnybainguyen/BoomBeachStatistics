@@ -9,7 +9,7 @@
 	<body>
 <% include nav.ejs %>
 		<div id="thank-you">
-			Thank you for your submission.  You will be redirected to charts page with the data you inputted in <span id="timer">3</span> seconds.
+			Thank you for your submission.  You will be redirected back to the submission page in <span id="timer">3</span> seconds.
 		</div>
 <% include footer.ejs %>
 		<script>
@@ -20,7 +20,7 @@
 				document.getElementById("timer").innerHTML = count;
 				if(count <= 0) {
 					clearInterval(counter);
-					location.href = '/charts';
+					location.href = '/xpvp-submission';
 					return;
 				}
 			}

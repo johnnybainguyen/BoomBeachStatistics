@@ -1,21 +1,17 @@
 var dates = ["April 1, 2015", "December 1, 2015", "February 1, 2016", "March 1, 2016", "April 1, 2016"];
-var apiResults = [];
+var calls = [];
 
-$.get(generateAPIURL(new Date(dates[0])), function(stats1, status) {
-	apiResults.push([dates[0], JSON.parse(stats1)]);
-	$.get(generateAPIURL(new Date(dates[1])), function(stats2, status) {		
-		apiResults.push([dates[1], JSON.parse(stats2)]);
-		$.get(generateAPIURL(new Date(dates[2])), function(stats3, status) {
-			apiResults.push([dates[2], JSON.parse(stats3)]);
-			$.get(generateAPIURL(new Date(dates[3])), function(stats4, status) {
-				apiResults.push([dates[3], JSON.parse(stats4)]);
-				$.get(generateAPIURL(new Date(dates[4])), function(stats5, status) {
-					apiResults.push([dates[4], JSON.parse(stats5)]);
-					myFunction(apiResults);
-				});
-			});
+dates.forEach(function(date) {
+	calls.push(function(callback) {
+		$.get(generateAPIURL(new Date(date)), function(stats, status) {
+			callback(null, [date, JSON.parse(stats)]);
 		});
 	});
+
+});
+
+async.parallel(calls, function(err, results) {
+	displayMonthToMonth(results);
 });
 
 function generateAPIURL(date) {
@@ -24,14 +20,14 @@ function generateAPIURL(date) {
 	return url;
 }
 
-function myFunction(stats) {
+function displayMonthToMonth(stats) {
 	var seriesData = [];
-	for(var i = 0; i < apiResults.length; ++i) {
+	for(var i = 0; i < stats.length; ++i) {
 		var graphType = "exponential";
 		var lineColor = '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6);
 		var pushObject = {};
-		var dateString = apiResults[i][0];
-		var dataArray = apiResults[i][1];
+		var dateString = stats[i][0];
+		var dataArray = stats[i][1];
 		pushObject["regression"] = true;
 		pushObject["regressionSettings"] = {type: graphType, color: lineColor};
 		pushObject["regressionSettings"]["name"] = dateString; 
