@@ -1,0 +1,188 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,700);
+/** Global **/
+body {
+	font-family: Roboto,Helvetica,sans-serif !important;
+	font-size: 13px !important;
+
+}
+
+body a, body p {
+	letter-spacing: .05em;
+	
+}
+
+body a, body a:hover {
+	text-decoration: none;
+}
+
+
+.container-fluid {
+	padding: 0px !important;
+}
+
+/** Header **/
+header {
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index:1;
+}
+
+.promotion-header {
+	background-color:#E6614B;
+	height: 40px;
+}
+
+.shipping-promotion {
+	max-width:1100px;
+	min-width: 600px;
+	margin: 0 auto;
+	padding-left: 20px;
+	color:white;
+	line-height: 40px;
+	overflow: hidden;
+	width: 90%;
+	white-space: no-wrap;
+}
+
+.navigation-header {
+	background: white;
+	height: 90px;
+}
+
+.navigation-bar {
+	margin: 0 auto;
+	max-width: 1100px;
+}
+
+.navigation-bar .sticky-logo {
+	display:inline-block;
+	float:left;
+	margin: 5px 0px 0px 20px;
+}
+
+.navigation-bar ul {
+	overflow: hidden;
+	min-width: 600px
+}
+
+.navigation-bar li {
+	display: inline-block;
+}
+
+.navigation-bar li a {
+	display:block;
+	color:black;
+	font-weight:bold;
+	line-height: 90px;
+	padding: 0px 15px;
+	font-size: 13px;
+}
+
+.navigation-bar li a:hover {
+	color: #E6614B;
+	text-decoration: none;
+}
+
+/** Content **/
+.content {
+	margin-top: 130px;
+}
+
+.content p {
+	line-height: 1.8;
+}
+
+.order-now-banner-content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform:translate(-50%, -50%);
+	text-align: center;
+	color: white;
+	padding: 0px 0px 16px 0px;
+}
+
+.order-now-banner {
+	background: url("/mock/images/1458279761009_Kettle-and-Fire-Broth.jpg");
+	background-repeat: no-repeat;
+	height: 600px;	
+	background-size: cover;
+	background-position: center;
+	position:relative;
+}
+
+.order-now-banner-content h2 {
+	font-size: 21px;
+	font-weight: 500px;
+	font-weight: bold;
+}
+
+.order-now-banner-content h3 {
+	font-size: 40px;
+	margin-top: 18px;
+	line-height: 48px;
+}
+
+.order-now-banner-content h4 {
+	margin: 27px 0px 16px 0px;
+	font-size: 16px;
+}
+
+.order-now-button {
+	background: #E6614B;
+	border-radius: 8px;
+	display: inline-block;	
+	margin: 15px 0px 10px 0px;
+}
+
+.order-now-button a {
+	display: block;
+	padding: 16px 50px;
+	color: white;
+	font-size: 21px;
+	font-weight: bold;
+}
+
+.order-now-button a:hover {
+	color: white;
+}
+
+.product-information {
+	height: 378px;
+	background: #EAE9EC;
+	padding: 70px 0px;
+
+}
+
+.product-information-content {
+	max-width: 1100px;
+	margin: 0 auto;
+}
+
+.product-information-image {
+	text-align: center;
+}
+
+.product-information-image img {
+	width: 400px;
+	height: 300px;
+}
+
+.product-information-text {
+	padding: 0px 30px;
+}
+
+.product-information-content h3 {
+	font-size: 24px;
+	font-weight: bold;
+	letter-spacing: 2.4px;
+}
+
+.product-information-content #order-now-button {
+	border-radius: 0px;
+}
+.product-information-content #order-now-button a {
+	padding: 10px 34px;
+}
+/** Footer **/

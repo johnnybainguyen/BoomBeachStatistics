@@ -1,4 +1,12 @@
-var dates = ["April 1, 2015", "December 1, 2015", "February 1, 2016", "March 1, 2016", "April 1, 2016"];
+var dates = ["4-1-2015", "12-1-2015", "4-1-2016"];
+var thisMonth = new Date().getMonth();
+for(var i = thisMonth - 3; i <= thisMonth; ++i) {
+	if(i >= 0) {
+		date = new Date();
+		dates.push(i + "-1-" + date.getFullYear());
+	}
+}
+console.log(dates);
 var calls = [];
 
 dates.forEach(function(date) {

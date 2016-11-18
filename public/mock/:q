@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="/mock/css/reset.css" rel="stylesheet">
+		<link href="/mock/css/styles.css" rel="stylesheet">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+	</head>
+	<body>
+			<div class="fixed-header">
+				<div class="promotion-header">
+					<div class="shipping-promotion">
+						<span>GET FREE GROUND SHIPPING WHEN YOU ORDER 6 OR MORE UNITS!</span>
+					</div>
+				</div>
+				<div id="navigation-header">
+					<div id="navigation-bar">
+						<a href="#"><img src="/mock/images/sticky-logo.png" width="65"></a>
+						<ul>
+							<li><a href="#">HOME</a></li>
+							<li><a href="#">SHOP</a></li>
+							<li><a href="#">OUR BONE BROTH</a></li>
+							<li><a href="#">FAQ</a></li>
+							<li><a href="#">ABOUT US</a></li>
+							<li><a href="#">CONTACT US</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="fixed-header-filler"></div>
+	</body>
+</html>

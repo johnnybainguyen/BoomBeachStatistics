@@ -1,0 +1,41 @@
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<style>
+			@media screen and (min-width: 1201px) {
+				.box {
+					height: 400px;
+					width: 400px;
+					background: green;
+				}
+			}
+			@media screen and (min-width: 1000px) and (max-width: 1200px) {
+				.box {
+					height: 300px;
+					width: 300px;
+					background: yellow;
+				}
+			}
+
+			
+			@media screen and (min-width: 600px) and (max-width: 999px) {
+				.box {
+					height: 200px;
+					width: 200px;
+					background:red;
+				}
+			}
+			@media screen and (max-width: 599px) {
+				.box {
+					height: 100px;
+					width: 100px;
+					background: blue;
+				}
+			}
+			
+		</style>
+		<div class="box"></div>
+	</body>
+</html>

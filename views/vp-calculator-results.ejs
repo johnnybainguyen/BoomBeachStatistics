@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html>
 	<head>
 <% include header.ejs %>
-		<link rel='stylesheet' type='type/css' href='css/submission.css'>
-		<link rel='stylesheet' type='type/css' href='css/nav.css'>
-		<link rel="stylesheet" type="type/css" href="css/vp-calculator.css">
+		<link rel='stylesheet' type='text/css' href='css/submission.css'>
+		<link rel='stylesheet' type='text/css' href='css/nav.css'>
+		<link rel="stylesheet" type="text/css" href="css/vp-calculator.css">
 		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
 		<script src="/js/plotly-latest.min.js"></script>
 		<script src="/js/vp-calculator.js"></script>
@@ -28,7 +29,8 @@
 				Your VP should be around: <b><span id="target-vp"><%= targetVP %></span></b><br>
 				Safe VP range to be around: <b><span id="vp-range"><%= vpRange %></span></b><br>
 				VP minimum-maximum from collected data: <b><span id="min-max"><%= minMax %></span></b><br>
-				Average: <b><span id="average"><%= average.toPrecision(4) %></span></b><br><br>
+				Average: <b><span id="average"><%= average.toPrecision(4) %></span></b><br>
+				XP to VP Ratio: <b><span id="ratio"><%= ratio.toPrecision(3) %></span></b><br><br>
 				<a href="/vp-calculator">Back</a>
 			</div>
 		</div>

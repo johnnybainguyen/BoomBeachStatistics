@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Boom Beach Hopper Network: Hopper Network | Experience Level | VP Calculator | Victory Points | XP | VP</title>
+		<meta name="description" content="The part of the site is a Hopper Network for people who wants to hop from TF to TF to do operations either for practice, more rewards, or meeting new people.">
+		<meta name="keywords" content="Boom Beach Hoppet Network, Hopper Network, VP Calculator, Boom Beach Calculator, Experience Level, Victory Point, VP, statistics, analysis">
+	
+		<link rel='stylesheet' type='type/css' href='css/styles.css'>
+		<link rel='stylesheet' type='type/css' href='css/submission.css'>
+		<link rel="stylesheet" type="text/css" href="/css/styles.css">
+		<link rel="stylesheet" type="text/css" href="/css/table.css">
+		<link rel="stylesheet" type="text/css" href="/css/nav.css">
+		<link rel="stylesheet" type="text/css" href="/css/select.css">
+		<script src="/js/timer.js"></script>
+		<script src="/js/validation.js"></script>
+		<script src="/js/google-analytics.js"></script>
+		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+	</head>
+	<body>
+<% include nav.ejs %>
+This is an alternative to The Hopper Network without installation of any apps or joining any chatroom.  The goal of this is to find players to fill in Task Force opens spots to give a helping hand in completing operations.  After a hopper has finished their attack, please kick and reinvite so that they can get their operation rewards later.  You are free to convince them to join your TF.
+<br>
+<table id="hopper-list">
+	<thead>	
+		<tr>
+			<th>Task Force Name</th>
+			<th>Task Force Tag</th>
+			<th>Players Needed</th>
+			<th>Report</th>
+			<th>Timer</th>
+		</tr>
+	</thead>
+	<tbody>
+<% for(var i = 0; i < activeTF.length; ++i) { %>
+	<tr id ="<%= activeTF[i]._id %>">
+		<td><%= activeTF[i].TFName %></td>
+		<td><%= activeTF[i].TFCode %></td>
+		<td><%= activeTF[i].PlayersNeeded %></td>
+		<td>Report Button</td>
+		<td class="timer"><%= parseMilliseconds(activeTF[i].Timer) %></td>
+	</tr>
+<% } %>
+	</tbody>
+</table>
+<table>
+	<tr>
+		<th>
+			Task Force Submission
+		</th>
+	</tr>
+	<tr>
+		<td>
+			<form name="tf-submit">
+				<input type="text" name="taskForceName" placeholder="Task Force Name"/>
+				<input type="text" name="taskForceCode" placeholder="Tag(#2CULJ0UC)"/>
+				<input type="text" name="playersNeeded" placeholder="# of needed players(1-50)"/>
+				<input type="submit" name="submit"/>
+			</form>
+		</td>
+	</tr>
+</table>
+** Only one submission per person<br>
+** Submissions are only active for 30 mins<br>
+** Newest Submission are on the top<br>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	$(document).ready(function() {
+		// Timer Interval	
+		setInterval(function() {
+			jQuery.each($(".timer"), function(index, value) {this.textContent = decrementTimer(this.textContent)});
+		}, 1000);
+
+		var socket = io.connect();
+		
+		// Insert a new row
+		socket.on('insert row', function(row) {
+			var tableRow = "<tr id='" + row.id + "'><td>" + row.TFName + "</td><td>" 
+						+ row.TFCode + "</td><td>" 
+						+ row.PlayersNeeded + "</td><td>"  
+						+ 'Report Button' + "</td><td class='timer'>" 
+						+ parseMilliseconds(row.Timer) + "</td></tr>"
+			$("#hopper-list tbody").prepend(tableRow);
+		});
+
+		// Update an existing row
+		socket.on("update row", function(row) {
+			var tableRow = $('#' + row._id).children();
+			tableRow[0].textContent = row.TFName;
+			tableRow[1].textContent = row.TFCode;
+			tableRow[2].textContent = row.PlayersNeeded;
+		});
+
+		// Task Force Submission
+		$("form[name=tf-submit]").submit(function() {
+			var tfSubmitInput = $("form[name=tf-submit] input[type=text]");
+		//	if(validateTaskForceName($(tfSubmitInput[0])) && validateTaskForceCode($(tfSubmitInput[1])) && validatePlayersNeeded($(tfSubmitInput[2]))) {
+				socket.emit("tf-submit",  
+					$('form[name=tf-submit]').serializeArray()
+						.reduce(function(a, x) { a[x.name] = x.value; return a; }, {}));
+				$("form[name=tf-submit] input[type=text]").val("");
+		//	}
+			return false;
+		});
+	});
+
+</script>
+<% include footer.ejs %>
+	</body>
+</html>

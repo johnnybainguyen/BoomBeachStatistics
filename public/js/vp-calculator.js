@@ -1,5 +1,5 @@
 var MINLEVEL = 12;
-var MAXLEVEL = 64;
+var MAXLEVEL = 65;
 $(document).ready(function() {
 	$("#vp-up-button").click(function() {
 		var level = parseInt($("#xp-level").text());
@@ -33,6 +33,7 @@ function updateVPCalculator(level) {
 		$("#vp-range").text(result.vpRange);
 		$("#min-max").text(result.minMax);
 		$("#average").text(result.average.toPrecision(4));
+		$("#ratio").text(result.ratio.toPrecision(2));
 		vpCalculatorDistribution("vp-calculator-vp-distribution", "VP of Others Your Level", "Count", "Victory Point", result.vpList);
 		vpCalculatorDistribution("vp-calculator-xp-distribution", "Probability of who you will be matched against", "Count", "Experience Level", result.xpList);
 	});

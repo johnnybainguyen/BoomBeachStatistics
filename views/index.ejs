@@ -1,29 +1,18 @@
+<!DOCTYPE html>
 <html>
 	<head>
 <% include header.ejs %>
+		<link rel='stylesheet' type='type/css' href='css/styles.css'>
 		<link rel='stylesheet' type='type/css' href='css/submission.css'>
 		<link rel="stylesheet" type="text/css" href="/css/styles.css">
 		<link rel="stylesheet" type="text/css" href="/css/table.css">
 		<link rel="stylesheet" type="text/css" href="/css/nav.css">
 		<link rel="stylesheet" type="text/css" href="/css/select.css">
-		<link rel="stylesheet" type="type/css" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
-		<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 		<script src="/js/google-analytics.js"></script>
-		<script src="/js/mindmup-editabletable.js"></script>
-		<script>
-			$(function() {
-				$("#submission-tooltip").tooltip({
-					content: function(callback) {
-						callback($(this).prop('title').replace(new RegExp("\\|", "g"), '<br />'));
-					}
-				});
-			});
-		</script>
 	</head>
 	<body>
 <% include nav.ejs %>
-		<div>
+		<div id="index-body">
 			<h1>What is this?</h1>
 			<p>This is a site dedicated to statistical analysis of Experience Level(XP) versus Victory Points(VP) in the game of Boom Beach.  This features a VP calculator that allows users to manage their in game Victory Point without hitting a wall and answers one of the most common question, "What should my VP be at?"  An added addition to the VP Calculator, users can look at how well others are doing at their level and it can also tell what players XP-ranges they will be matched against.  <a href="http://boombeach.wikia.com/wiki/Matchmaking">For more information about Boom Beach Matchmaking</a>.  The VP calculator uses data collected from users which translate to useable in-game knowledge.  In addition to the VP Calculator, various charts are provided to give users an idea of how XP/VP changes on a month-to-month basis which shows different users trends depending on different updates applied to the game by SuperCell. </p>
 			<p>To help with data entry, users can either input XP/VP of users one by one, through a list, or screenshot-data extraction.  The screenshot-data extraction analyzes the text using Optical Character Recognition(OCR) technology to allow for number/text data to be recognized and turned into readable text data.  This data then inserted into the database which is later used for statistical analysis.</p>

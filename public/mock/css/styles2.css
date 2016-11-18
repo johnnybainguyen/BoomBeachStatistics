@@ -1,0 +1,134 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto);
+
+body {
+	font-family: Roboto,Helvetica,sans-serif !important;
+	font-size: 12px;
+}
+
+a {
+	text-decoration: none;
+}
+
+h2 {
+	font-size: 21px;
+	font-weight: bold;
+}
+
+h3 {
+	font-size: 40px;
+	font-weight: normal;
+}
+
+h4 {
+	font-size: 16px;
+	font-weight: normal;
+}
+
+
+#fixed-header {
+	position: fixed;
+	width: 100%;
+	background: white;
+	z-index: 1;
+}
+
+#fixed-header-filler {
+	height: 130px
+}
+
+#login-header {
+	background-color: #E6614B;
+	height: 40px;
+	color: white;
+}
+
+#login-header-wrapper {
+	max-width: 1100px;
+	padding-top: 10px;
+	margin: 0 auto;
+}
+
+#login-header a {
+	color:white;
+}
+
+#shipping-promo {
+	float:left;
+}
+
+#login-link {
+	float:right;
+}
+
+.clearfix {
+	clear: both;
+}
+
+#navigation-header {
+	margin: 0 auto;
+}
+
+#navigation-header-wrapper {
+	max-width: 1100px;
+	margin: 0 auto;
+}
+
+#navigation-header  ul {
+	padding-top: 40px;
+	margin-left: 142px;
+}
+
+#navigation-header li {
+	display:inline;
+	padding: 15px;
+}
+
+#navigation-header-wrapper > a {
+	float:left;
+}
+
+#navigation-header a {
+	color: black;
+	font-weight: bold;
+}
+ 
+.order-now-banner {
+	height: 600px;
+	position:relative;
+	background: url("/mock/images/1458279761009_Kettle-and-Fire-Broth.jpg") no-repeat center;
+	background-size: cover;
+}
+
+.order-now-banner > div {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	text-align:center;
+	color:white;
+}
+
+.order-now-banner h3 {
+	 margin-top: 15px;
+}
+
+.order-now-banner h4 {
+	margin-top: 25px;
+}
+
+.order-now-button {
+	margin: 0 auto;
+}
+
+.order-now-button a {
+	display: inline-block;
+	height: 22px;
+	width 152px;
+	padding: 20px 40px;
+	font-weight: bold;
+	background: #E6614B;
+	border-radius: 5px;
+	color: white;
+	font-size: 21px;
+	margin-top: 20px;
+}

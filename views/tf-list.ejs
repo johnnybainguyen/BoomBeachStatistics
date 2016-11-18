@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Boom Beach Hopper Network: Hopper Network | Experience Level | VP Calculator | Victory Points | XP | VP</title>
+		<meta name="description" content="The part of the site is a Hopper Network for people who wants to hop from TF to TF to do operations either for practice, more rewards, or meeting new people.">
+		<meta name="keywords" content="Boom Beach Hoppet Network, Hopper Network, VP Calculator, Boom Beach Calculator, Experience Level, Victory Point, VP, statistics, analysis">
+	
+		<link rel='stylesheet' type='type/css' href='css/styles.css'>
+		<link rel='stylesheet' type='type/css' href='css/submission.css'>
+		<link rel="stylesheet" type="text/css" href="/css/styles.css">
+		<link rel="stylesheet" type="text/css" href="/css/table.css">
+		<link rel="stylesheet" type="text/css" href="/css/nav.css">
+		<link rel="stylesheet" type="text/css" href="/css/select.css">
+		<script src="/js/timer.js"></script>
+		<script src="/js/validation.js"></script>
+		<script src="/js/google-analytics.js"></script>
+		<script src="http://code.jquery.com/jquery-1.12.0.min.js"></script>
+	</head>
+	<body>
+<% include nav.ejs %>
+<table id="tf-list">
+	<thead>	
+		<tr>
+			<th>TF Name</th>
+			<th>TF Tag</th>
+			<th>TF Description</th>
+			<th>Current Op Being Completed<th>
+			<th>Force Points</th>
+			<th>Current # of Members</th>
+			<th>Max Members</th>
+			<th>Entry Requirement</th>
+			<th>Currently Recruiting</th>
+			<th>Submitted Date</th>
+		</tr>
+	</thead>
+	<tbody>
+<% for(var i = 0; i < tfList.length; ++i) { %>
+	<tr id ="<%= tfList[i] %>">
+		<td><%= tfList[i].TFName %></td>
+		<td><%= tfList[i].TFTag %></td>
+		<td><%= tfList[i].TFDescription %></td>
+		<td><%= tfList[i].ForcePoints %></td>
+		<td><%= tfList[i].NumberOfMembers %></td>
+		<td><%= tfList[i].MaxMembers %></td>
+		<td><%= tfList[i].EntryRequirement %></td>
+		<td><%= tfList[i].CurrentlyRecruiting %></td>
+		<td><%= tfList[i].CurrentOperation %></td>
+		<td><%= tfList[i].Submitted%></td>
+	</tr>
+<% } %>
+	</tbody>
+</table>
+<table>
+	<tr>
+		<th>
+			Task Force Submission
+		</th>
+	</tr>
+	<tr>
+		<td>
+			<form name="tf-submit" action="/tf-list" method="POST">
+				<input type="text" name="tfTag" placeholder="TF Tag"/>
+				<input type="text" name="tfPW" placeholder="TF Password"/>
+				<input type="text" name="tfName" placeholder="TF Name"/>
+				<input type="text" name="tfDescription" placeholder="TF Description"/>
+				<input type="text" name="currentOperation" placeholder="Current Operation Completed"/>
+				<input type="text" name="forcePoints" placeholder="Force Points"/>
+				<input type="text" name="numberOfMembers" placeholder="Number of Members"/>
+				<input type="text" name="maxMembers" placeholder="Max Number of Members"/>
+				<input type="text" name="entryRequirement" placeholder="VP Requirements"/>
+				<input type="text" name="currentlyRecruiting" placeholder="Currently Recruiting?"/>
+				<input type="submit" name="submit"/>
+			</form>
+		</td>
+	</tr>
+</table>
+
+<% include footer.ejs %>
+	</body>
+</html>
